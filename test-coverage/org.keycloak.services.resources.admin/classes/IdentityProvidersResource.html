@@ -1,0 +1,321 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: IdentityProvidersResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: IdentityProvidersResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">IdentityProvidersResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    44.4%
+  </span>
+  <span class="absValue">
+    (4/ 9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    46.3%
+  </span>
+  <span class="absValue">
+    (31/ 67)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;
+<i>18</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>21</i>&nbsp;import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+<i>22</i>&nbsp;import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+<i>23</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>24</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>25</i>&nbsp;import org.keycloak.broker.provider.IdentityProvider;
+<i>26</i>&nbsp;import org.keycloak.broker.provider.IdentityProviderFactory;
+<i>27</i>&nbsp;import org.keycloak.connections.httpclient.HttpClientProvider;
+<i>28</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>29</i>&nbsp;import org.keycloak.models.IdentityProviderModel;
+<i>30</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>31</i>&nbsp;import org.keycloak.models.ModelDuplicateException;
+<i>32</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>33</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>34</i>&nbsp;import org.keycloak.models.utils.RepresentationToModel;
+<i>35</i>&nbsp;import org.keycloak.provider.ProviderFactory;
+<i>36</i>&nbsp;import org.keycloak.representations.idm.IdentityProviderRepresentation;
+<i>37</i>&nbsp;import org.keycloak.services.ErrorResponse;
+<i>38</i>&nbsp;import org.keycloak.broker.social.SocialIdentityProvider;
+<i>39</i>&nbsp;
+<i>40</i>&nbsp;import javax.ws.rs.Consumes;
+<i>41</i>&nbsp;import javax.ws.rs.GET;
+<i>42</i>&nbsp;import javax.ws.rs.POST;
+<i>43</i>&nbsp;import javax.ws.rs.Path;
+<i>44</i>&nbsp;import javax.ws.rs.PathParam;
+<i>45</i>&nbsp;import javax.ws.rs.Produces;
+<i>46</i>&nbsp;import javax.ws.rs.core.Context;
+<i>47</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>48</i>&nbsp;import javax.ws.rs.core.Response;
+<i>49</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>50</i>&nbsp;
+<i>51</i>&nbsp;import java.io.IOException;
+<i>52</i>&nbsp;import java.io.InputStream;
+<i>53</i>&nbsp;import java.util.ArrayList;
+<i>54</i>&nbsp;import java.util.List;
+<i>55</i>&nbsp;import java.util.Map;
+<i>56</i>&nbsp;
+<i>57</i>&nbsp;import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+<i>58</i>&nbsp;
+<i>59</i>&nbsp;/**
+<i>60</i>&nbsp; * @author Pedro Igor
+<i>61</i>&nbsp; */
+<i>62</i>&nbsp;public class IdentityProvidersResource {
+<i>63</i>&nbsp;
+<i>64</i>&nbsp;    private final RealmModel realm;
+<i>65</i>&nbsp;    private final KeycloakSession session;
+<i>66</i>&nbsp;    private RealmAuth auth;
+<i>67</i>&nbsp;    private AdminEventBuilder adminEvent;
+<i>68</i>&nbsp;
+<b class="fc"><i>69</i>&nbsp;    public IdentityProvidersResource(RealmModel realm, KeycloakSession session, RealmAuth auth, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>70</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>71</i>&nbsp;        this.session = session;</b>
+<b class="fc"><i>72</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>73</i>&nbsp;        this.auth.init(RealmAuth.Resource.IDENTITY_PROVIDER);</b>
+<b class="fc"><i>74</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<b class="fc"><i>75</i>&nbsp;    }</b>
+<i>76</i>&nbsp;
+<i>77</i>&nbsp;    /**
+<i>78</i>&nbsp;     * Get identity providers
+<i>79</i>&nbsp;     *
+<i>80</i>&nbsp;     * @param providerId Provider id
+<i>81</i>&nbsp;     * @return
+<i>82</i>&nbsp;     */
+<i>83</i>&nbsp;    @Path(&quot;/providers/{provider_id}&quot;)
+<i>84</i>&nbsp;    @GET
+<i>85</i>&nbsp;    @NoCache
+<i>86</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>87</i>&nbsp;    public Response getIdentityProviders(@PathParam(&quot;provider_id&quot;) String providerId) {
+<b class="nc"><i>88</i>&nbsp;        this.auth.requireView();</b>
+<b class="nc"><i>89</i>&nbsp;        IdentityProviderFactory providerFactory = getProviderFactorytById(providerId);</b>
+<b class="nc"><i>90</i>&nbsp;        if (providerFactory != null) {</b>
+<b class="nc"><i>91</i>&nbsp;            return Response.ok(providerFactory).build();</b>
+<i>92</i>&nbsp;        }
+<b class="nc"><i>93</i>&nbsp;        return Response.status(BAD_REQUEST).build();</b>
+<i>94</i>&nbsp;    }
+<i>95</i>&nbsp;
+<i>96</i>&nbsp;    /**
+<i>97</i>&nbsp;     * Import identity provider from uploaded JSON file
+<i>98</i>&nbsp;     *
+<i>99</i>&nbsp;     * @param uriInfo
+<i>100</i>&nbsp;     * @param input
+<i>101</i>&nbsp;     * @return
+<i>102</i>&nbsp;     * @throws IOException
+<i>103</i>&nbsp;     */
+<i>104</i>&nbsp;    @POST
+<i>105</i>&nbsp;    @Path(&quot;import-config&quot;)
+<i>106</i>&nbsp;    @Consumes(MediaType.MULTIPART_FORM_DATA)
+<i>107</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>108</i>&nbsp;    public Map&lt;String, String&gt; importFrom(@Context UriInfo uriInfo, MultipartFormDataInput input) throws IOException {
+<b class="nc"><i>109</i>&nbsp;        this.auth.requireManage();</b>
+<b class="nc"><i>110</i>&nbsp;        Map&lt;String, List&lt;InputPart&gt;&gt; formDataMap = input.getFormDataMap();</b>
+<b class="nc"><i>111</i>&nbsp;        String providerId = formDataMap.get(&quot;providerId&quot;).get(0).getBodyAsString();</b>
+<b class="nc"><i>112</i>&nbsp;        InputPart file = formDataMap.get(&quot;file&quot;).get(0);</b>
+<b class="nc"><i>113</i>&nbsp;        InputStream inputStream = file.getBody(InputStream.class, null);</b>
+<b class="nc"><i>114</i>&nbsp;        IdentityProviderFactory providerFactory = getProviderFactorytById(providerId);</b>
+<b class="nc"><i>115</i>&nbsp;        Map&lt;String, String&gt; config = providerFactory.parseConfig(inputStream);</b>
+<b class="nc"><i>116</i>&nbsp;        return config;</b>
+<i>117</i>&nbsp;    }
+<i>118</i>&nbsp;
+<i>119</i>&nbsp;    /**
+<i>120</i>&nbsp;     * Import identity provider from JSON body
+<i>121</i>&nbsp;     *
+<i>122</i>&nbsp;     * @param uriInfo
+<i>123</i>&nbsp;     * @param data JSON body
+<i>124</i>&nbsp;     * @return
+<i>125</i>&nbsp;     * @throws IOException
+<i>126</i>&nbsp;     */
+<i>127</i>&nbsp;    @POST
+<i>128</i>&nbsp;    @Path(&quot;import-config&quot;)
+<i>129</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>130</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>131</i>&nbsp;    public Map&lt;String, String&gt; importFrom(@Context UriInfo uriInfo, Map&lt;String, Object&gt; data) throws IOException {
+<b class="nc"><i>132</i>&nbsp;        this.auth.requireManage();</b>
+<i>133</i>&nbsp;
+<b class="nc"><i>134</i>&nbsp;        String providerId = data.get(&quot;providerId&quot;).toString();</b>
+<b class="nc"><i>135</i>&nbsp;        String from = data.get(&quot;fromUrl&quot;).toString();</b>
+<b class="nc"><i>136</i>&nbsp;        InputStream inputStream = session.getProvider(HttpClientProvider.class).get(from);</b>
+<i>137</i>&nbsp;        try {
+<b class="nc"><i>138</i>&nbsp;            IdentityProviderFactory providerFactory = getProviderFactorytById(providerId);</b>
+<i>139</i>&nbsp;            Map&lt;String, String&gt; config;
+<b class="nc"><i>140</i>&nbsp;            config = providerFactory.parseConfig(inputStream);</b>
+<b class="nc"><i>141</i>&nbsp;            return config;</b>
+<i>142</i>&nbsp;        } finally {
+<b class="nc"><i>143</i>&nbsp;            try {</b>
+<b class="nc"><i>144</i>&nbsp;                inputStream.close();</b>
+<b class="nc"><i>145</i>&nbsp;            } catch (IOException e) {</b>
+<b class="nc"><i>146</i>&nbsp;            }</b>
+<i>147</i>&nbsp;        }
+<i>148</i>&nbsp;    }
+<i>149</i>&nbsp;
+<i>150</i>&nbsp;    /**
+<i>151</i>&nbsp;     * Get identity providers
+<i>152</i>&nbsp;     *
+<i>153</i>&nbsp;     * @return
+<i>154</i>&nbsp;     */
+<i>155</i>&nbsp;    @GET
+<i>156</i>&nbsp;    @Path(&quot;instances&quot;)
+<i>157</i>&nbsp;    @NoCache
+<i>158</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>159</i>&nbsp;    public List&lt;IdentityProviderRepresentation&gt; getIdentityProviders() {
+<b class="fc"><i>160</i>&nbsp;        this.auth.requireView();</b>
+<i>161</i>&nbsp;
+<b class="fc"><i>162</i>&nbsp;        List&lt;IdentityProviderRepresentation&gt; representations = new ArrayList&lt;IdentityProviderRepresentation&gt;();</b>
+<i>163</i>&nbsp;
+<b class="fc"><i>164</i>&nbsp;        for (IdentityProviderModel identityProviderModel : realm.getIdentityProviders()) {</b>
+<b class="fc"><i>165</i>&nbsp;            representations.add(ModelToRepresentation.toRepresentation(realm, identityProviderModel));</b>
+<b class="fc"><i>166</i>&nbsp;        }</b>
+<b class="fc"><i>167</i>&nbsp;        return representations;</b>
+<i>168</i>&nbsp;    }
+<i>169</i>&nbsp;
+<i>170</i>&nbsp;    /**
+<i>171</i>&nbsp;     * Create a new identity provider
+<i>172</i>&nbsp;     *
+<i>173</i>&nbsp;     * @param uriInfo
+<i>174</i>&nbsp;     * @param representation JSON body
+<i>175</i>&nbsp;     * @return
+<i>176</i>&nbsp;     */
+<i>177</i>&nbsp;    @POST
+<i>178</i>&nbsp;    @Path(&quot;instances&quot;)
+<i>179</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>180</i>&nbsp;    public Response create(@Context UriInfo uriInfo, IdentityProviderRepresentation representation) {
+<b class="fc"><i>181</i>&nbsp;        this.auth.requireManage();</b>
+<i>182</i>&nbsp;
+<i>183</i>&nbsp;        try {
+<b class="fc"><i>184</i>&nbsp;            IdentityProviderModel identityProvider = RepresentationToModel.toModel(realm, representation);</b>
+<b class="fc"><i>185</i>&nbsp;            this.realm.addIdentityProvider(identityProvider);</b>
+<i>186</i>&nbsp;
+<b class="fc"><i>187</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo, identityProvider.getInternalId())</b>
+<b class="fc"><i>188</i>&nbsp;                    .representation(representation).success();</b>
+<i>189</i>&nbsp;            
+<b class="fc"><i>190</i>&nbsp;            return Response.created(uriInfo.getAbsolutePathBuilder().path(representation.getAlias()).build()).build();</b>
+<b class="nc"><i>191</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="nc"><i>192</i>&nbsp;            return ErrorResponse.exists(&quot;Identity Provider &quot; + representation.getAlias() + &quot; already exists&quot;);</b>
+<i>193</i>&nbsp;        }
+<i>194</i>&nbsp;    }
+<i>195</i>&nbsp;
+<i>196</i>&nbsp;    @Path(&quot;instances/{alias}&quot;)
+<i>197</i>&nbsp;    public IdentityProviderResource getIdentityProvider(@PathParam(&quot;alias&quot;) String alias) {
+<b class="fc"><i>198</i>&nbsp;        this.auth.requireView();</b>
+<b class="fc"><i>199</i>&nbsp;        IdentityProviderModel identityProviderModel = null;</b>
+<i>200</i>&nbsp;
+<b class="fc"><i>201</i>&nbsp;        for (IdentityProviderModel storedIdentityProvider : this.realm.getIdentityProviders()) {</b>
+<b class="fc"><i>202</i>&nbsp;            if (storedIdentityProvider.getAlias().equals(alias)</b>
+<b class="fc"><i>203</i>&nbsp;                    || storedIdentityProvider.getInternalId().equals(alias)) {</b>
+<b class="fc"><i>204</i>&nbsp;                identityProviderModel = storedIdentityProvider;</b>
+<i>205</i>&nbsp;            }
+<b class="fc"><i>206</i>&nbsp;        }</b>
+<i>207</i>&nbsp;
+<b class="fc"><i>208</i>&nbsp;        if (identityProviderModel == null) {</b>
+<b class="fc"><i>209</i>&nbsp;            throw new NotFoundException(&quot;Could not find identity provider&quot;);</b>
+<i>210</i>&nbsp;        }
+<i>211</i>&nbsp;
+<b class="fc"><i>212</i>&nbsp;        IdentityProviderResource identityProviderResource = new IdentityProviderResource(this.auth, realm, session, identityProviderModel, adminEvent);</b>
+<b class="fc"><i>213</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(identityProviderResource);</b>
+<i>214</i>&nbsp;        
+<b class="fc"><i>215</i>&nbsp;        return identityProviderResource;</b>
+<i>216</i>&nbsp;    }
+<i>217</i>&nbsp;
+<i>218</i>&nbsp;    private IdentityProviderFactory getProviderFactorytById(String providerId) {
+<b class="nc"><i>219</i>&nbsp;        List&lt;ProviderFactory&gt; allProviders = getProviderFactories();</b>
+<i>220</i>&nbsp;
+<b class="nc"><i>221</i>&nbsp;        for (ProviderFactory providerFactory : allProviders) {</b>
+<b class="nc"><i>222</i>&nbsp;            if (providerFactory.getId().equals(providerId)) {</b>
+<b class="nc"><i>223</i>&nbsp;                return (IdentityProviderFactory) providerFactory;</b>
+<i>224</i>&nbsp;            }
+<b class="nc"><i>225</i>&nbsp;        }</b>
+<i>226</i>&nbsp;
+<b class="nc"><i>227</i>&nbsp;        return null;</b>
+<i>228</i>&nbsp;    }
+<i>229</i>&nbsp;
+<i>230</i>&nbsp;    private List&lt;ProviderFactory&gt; getProviderFactories() {
+<b class="nc"><i>231</i>&nbsp;        List&lt;ProviderFactory&gt; allProviders = new ArrayList&lt;ProviderFactory&gt;();</b>
+<i>232</i>&nbsp;
+<b class="nc"><i>233</i>&nbsp;        allProviders.addAll(this.session.getKeycloakSessionFactory().getProviderFactories(IdentityProvider.class));</b>
+<b class="nc"><i>234</i>&nbsp;        allProviders.addAll(this.session.getKeycloakSessionFactory().getProviderFactories(SocialIdentityProvider.class));</b>
+<i>235</i>&nbsp;
+<b class="nc"><i>236</i>&nbsp;        return allProviders;</b>
+<i>237</i>&nbsp;    }
+<i>238</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

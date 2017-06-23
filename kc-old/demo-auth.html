@@ -1,0 +1,14 @@
+<div data-ng-hide="keycloak.authenticated">
+    <h2>Not authenticated</h2>
+</div>
+<div data-ng-show="keycloak.authenticated">
+    <div class="col-2">
+        <h3>Token</h3>
+        <pre>{{keycloak.tokenParsed|json}}</pre>
+    </div>
+
+    <div class="col-2">
+        <h3>Profile</h3>
+        <pre>{{keycloak.profile|json}}</pre>
+    </div>
+</div>

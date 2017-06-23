@@ -1,0 +1,252 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: ScopeMappedClientResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: ScopeMappedClientResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ScopeMappedClientResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (4/ 6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    69.6%
+  </span>
+  <span class="absValue">
+    (32/ 46)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;
+<i>18</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>22</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>23</i>&nbsp;import org.keycloak.models.ClientModel;
+<i>24</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>25</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>26</i>&nbsp;import org.keycloak.models.RoleModel;
+<i>27</i>&nbsp;import org.keycloak.models.ScopeContainerModel;
+<i>28</i>&nbsp;import org.keycloak.models.utils.KeycloakModelUtils;
+<i>29</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>30</i>&nbsp;import org.keycloak.representations.idm.RoleRepresentation;
+<i>31</i>&nbsp;
+<i>32</i>&nbsp;import javax.ws.rs.Consumes;
+<i>33</i>&nbsp;import javax.ws.rs.DELETE;
+<i>34</i>&nbsp;import javax.ws.rs.GET;
+<i>35</i>&nbsp;import javax.ws.rs.POST;
+<i>36</i>&nbsp;import javax.ws.rs.Path;
+<i>37</i>&nbsp;import javax.ws.rs.Produces;
+<i>38</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>39</i>&nbsp;
+<i>40</i>&nbsp;import java.util.ArrayList;
+<i>41</i>&nbsp;import java.util.List;
+<i>42</i>&nbsp;import java.util.Set;
+<i>43</i>&nbsp;
+<i>44</i>&nbsp;/**
+<i>45</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>46</i>&nbsp; * @version $Revision: 1 $
+<i>47</i>&nbsp; */
+<i>48</i>&nbsp;public class ScopeMappedClientResource {
+<i>49</i>&nbsp;    protected RealmModel realm;
+<i>50</i>&nbsp;    private RealmAuth auth;
+<i>51</i>&nbsp;    protected ScopeContainerModel scopeContainer;
+<i>52</i>&nbsp;    protected KeycloakSession session;
+<i>53</i>&nbsp;    protected ClientModel scopedClient;
+<i>54</i>&nbsp;    protected AdminEventBuilder adminEvent;
+<i>55</i>&nbsp;    
+<b class="fc"><i>56</i>&nbsp;    public ScopeMappedClientResource(RealmModel realm, RealmAuth auth, ScopeContainerModel scopeContainer, KeycloakSession session, ClientModel scopedClient, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>57</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>58</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>59</i>&nbsp;        this.scopeContainer = scopeContainer;</b>
+<b class="fc"><i>60</i>&nbsp;        this.session = session;</b>
+<b class="fc"><i>61</i>&nbsp;        this.scopedClient = scopedClient;</b>
+<b class="fc"><i>62</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<b class="fc"><i>63</i>&nbsp;    }</b>
+<i>64</i>&nbsp;
+<i>65</i>&nbsp;    /**
+<i>66</i>&nbsp;     * Get the roles associated with a client&#39;s scope
+<i>67</i>&nbsp;     *
+<i>68</i>&nbsp;     * Returns roles for the client.
+<i>69</i>&nbsp;     *
+<i>70</i>&nbsp;     * @return
+<i>71</i>&nbsp;     */
+<i>72</i>&nbsp;    @GET
+<i>73</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>74</i>&nbsp;    @NoCache
+<i>75</i>&nbsp;    public List&lt;RoleRepresentation&gt; getClientScopeMappings() {
+<b class="fc"><i>76</i>&nbsp;        auth.requireView();</b>
+<i>77</i>&nbsp;
+<b class="fc"><i>78</i>&nbsp;        Set&lt;RoleModel&gt; mappings = KeycloakModelUtils.getClientScopeMappings(scopedClient, scopeContainer); //scopedClient.getClientScopeMappings(client);</b>
+<b class="fc"><i>79</i>&nbsp;        List&lt;RoleRepresentation&gt; mapRep = new ArrayList&lt;RoleRepresentation&gt;();</b>
+<b class="fc"><i>80</i>&nbsp;        for (RoleModel roleModel : mappings) {</b>
+<b class="fc"><i>81</i>&nbsp;            mapRep.add(ModelToRepresentation.toRepresentation(roleModel));</b>
+<b class="fc"><i>82</i>&nbsp;        }</b>
+<b class="fc"><i>83</i>&nbsp;        return mapRep;</b>
+<i>84</i>&nbsp;    }
+<i>85</i>&nbsp;
+<i>86</i>&nbsp;    /**
+<i>87</i>&nbsp;     * The available client-level roles
+<i>88</i>&nbsp;     *
+<i>89</i>&nbsp;     * Returns the roles for the client that can be associated with the client&#39;s scope
+<i>90</i>&nbsp;     *
+<i>91</i>&nbsp;     * @return
+<i>92</i>&nbsp;     */
+<i>93</i>&nbsp;    @Path(&quot;available&quot;)
+<i>94</i>&nbsp;    @GET
+<i>95</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>96</i>&nbsp;    @NoCache
+<i>97</i>&nbsp;    public List&lt;RoleRepresentation&gt; getAvailableClientScopeMappings() {
+<b class="nc"><i>98</i>&nbsp;        auth.requireView();</b>
+<i>99</i>&nbsp;
+<b class="nc"><i>100</i>&nbsp;        Set&lt;RoleModel&gt; roles = scopedClient.getRoles();</b>
+<b class="nc"><i>101</i>&nbsp;        return ScopeMappedResource.getAvailable(scopeContainer, roles);</b>
+<i>102</i>&nbsp;    }
+<i>103</i>&nbsp;
+<i>104</i>&nbsp;    /**
+<i>105</i>&nbsp;     * Get effective client roles
+<i>106</i>&nbsp;     *
+<i>107</i>&nbsp;     * Returns the roles for the client that are associated with the client&#39;s scope.
+<i>108</i>&nbsp;     *
+<i>109</i>&nbsp;     * @return
+<i>110</i>&nbsp;     */
+<i>111</i>&nbsp;    @Path(&quot;composite&quot;)
+<i>112</i>&nbsp;    @GET
+<i>113</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>114</i>&nbsp;    @NoCache
+<i>115</i>&nbsp;    public List&lt;RoleRepresentation&gt; getCompositeClientScopeMappings() {
+<b class="nc"><i>116</i>&nbsp;        auth.requireView();</b>
+<i>117</i>&nbsp;
+<b class="nc"><i>118</i>&nbsp;        Set&lt;RoleModel&gt; roles = scopedClient.getRoles();</b>
+<b class="nc"><i>119</i>&nbsp;        return ScopeMappedResource.getComposite(scopeContainer, roles);</b>
+<i>120</i>&nbsp;    }
+<i>121</i>&nbsp;
+<i>122</i>&nbsp;    /**
+<i>123</i>&nbsp;     * Add client-level roles to the client&#39;s scope
+<i>124</i>&nbsp;     *
+<i>125</i>&nbsp;     * @param roles
+<i>126</i>&nbsp;     */
+<i>127</i>&nbsp;    @POST
+<i>128</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>129</i>&nbsp;    public void addClientScopeMapping(List&lt;RoleRepresentation&gt; roles) {
+<b class="fc"><i>130</i>&nbsp;        auth.requireManage();</b>
+<i>131</i>&nbsp;
+<b class="fc"><i>132</i>&nbsp;        for (RoleRepresentation role : roles) {</b>
+<b class="fc"><i>133</i>&nbsp;            RoleModel roleModel = scopedClient.getRole(role.getName());</b>
+<b class="fc"><i>134</i>&nbsp;            if (roleModel == null) {</b>
+<b class="nc"><i>135</i>&nbsp;                throw new NotFoundException(&quot;Role not found&quot;);</b>
+<i>136</i>&nbsp;            }
+<b class="fc"><i>137</i>&nbsp;            scopeContainer.addScopeMapping(roleModel);</b>
+<b class="fc"><i>138</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(session.getContext().getUri(), roleModel.getId()).representation(roles).success();</b>
+<b class="fc"><i>139</i>&nbsp;        }</b>
+<b class="fc"><i>140</i>&nbsp;    }</b>
+<i>141</i>&nbsp;
+<i>142</i>&nbsp;    /**
+<i>143</i>&nbsp;     * Remove client-level roles from the client&#39;s scope.
+<i>144</i>&nbsp;     *
+<i>145</i>&nbsp;     * @param roles
+<i>146</i>&nbsp;     */
+<i>147</i>&nbsp;    @DELETE
+<i>148</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>149</i>&nbsp;    public void deleteClientScopeMapping(List&lt;RoleRepresentation&gt; roles) {
+<b class="fc"><i>150</i>&nbsp;        auth.requireManage();</b>
+<i>151</i>&nbsp;
+<b class="fc"><i>152</i>&nbsp;        if (roles == null) {</b>
+<b class="nc"><i>153</i>&nbsp;            Set&lt;RoleModel&gt; roleModels = KeycloakModelUtils.getClientScopeMappings(scopedClient, scopeContainer);//scopedClient.getClientScopeMappings(client);</b>
+<b class="nc"><i>154</i>&nbsp;            for (RoleModel roleModel : roleModels) {</b>
+<b class="nc"><i>155</i>&nbsp;                scopeContainer.deleteScopeMapping(roleModel);</b>
+<b class="nc"><i>156</i>&nbsp;            }</b>
+<b class="nc"><i>157</i>&nbsp;            adminEvent.operation(OperationType.DELETE).resourcePath(session.getContext().getUri()).representation(roles).success();</b>
+<b class="nc"><i>158</i>&nbsp;        } else {</b>
+<b class="fc"><i>159</i>&nbsp;            for (RoleRepresentation role : roles) {</b>
+<b class="fc"><i>160</i>&nbsp;                RoleModel roleModel = scopedClient.getRole(role.getName());</b>
+<b class="fc"><i>161</i>&nbsp;                if (roleModel == null) {</b>
+<b class="nc"><i>162</i>&nbsp;                    throw new NotFoundException(&quot;Role not found&quot;);</b>
+<i>163</i>&nbsp;                }
+<b class="fc"><i>164</i>&nbsp;                scopeContainer.deleteScopeMapping(roleModel);</b>
+<b class="fc"><i>165</i>&nbsp;                adminEvent.operation(OperationType.DELETE).resourcePath(session.getContext().getUri(), roleModel.getId()).representation(roles).success();</b>
+<b class="fc"><i>166</i>&nbsp;            }</b>
+<i>167</i>&nbsp;        }
+<b class="fc"><i>168</i>&nbsp;    }</b>
+<i>169</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

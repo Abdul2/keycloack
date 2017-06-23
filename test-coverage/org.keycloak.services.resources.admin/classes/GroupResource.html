@@ -1,0 +1,283 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: GroupResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: GroupResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GroupResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    75%
+  </span>
+  <span class="absValue">
+    (6/ 8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.6%
+  </span>
+  <span class="absValue">
+    (34/ 59)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>22</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>23</i>&nbsp;import org.keycloak.models.GroupModel;
+<i>24</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>25</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>26</i>&nbsp;import org.keycloak.models.UserModel;
+<i>27</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>28</i>&nbsp;import org.keycloak.representations.idm.GroupRepresentation;
+<i>29</i>&nbsp;import org.keycloak.representations.idm.UserRepresentation;
+<i>30</i>&nbsp;
+<i>31</i>&nbsp;import javax.ws.rs.Consumes;
+<i>32</i>&nbsp;import javax.ws.rs.DELETE;
+<i>33</i>&nbsp;import javax.ws.rs.GET;
+<i>34</i>&nbsp;import javax.ws.rs.POST;
+<i>35</i>&nbsp;import javax.ws.rs.PUT;
+<i>36</i>&nbsp;import javax.ws.rs.Path;
+<i>37</i>&nbsp;import javax.ws.rs.Produces;
+<i>38</i>&nbsp;import javax.ws.rs.QueryParam;
+<i>39</i>&nbsp;import javax.ws.rs.core.Context;
+<i>40</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>41</i>&nbsp;import javax.ws.rs.core.Response;
+<i>42</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>43</i>&nbsp;import java.net.URI;
+<i>44</i>&nbsp;import java.util.ArrayList;
+<i>45</i>&nbsp;import java.util.HashSet;
+<i>46</i>&nbsp;import java.util.List;
+<i>47</i>&nbsp;import java.util.Map;
+<i>48</i>&nbsp;import java.util.Set;
+<i>49</i>&nbsp;
+<i>50</i>&nbsp;/**
+<i>51</i>&nbsp; * @author Bill Burke
+<i>52</i>&nbsp; */
+<i>53</i>&nbsp;public class GroupResource {
+<i>54</i>&nbsp;
+<i>55</i>&nbsp;    private final RealmModel realm;
+<i>56</i>&nbsp;    private final KeycloakSession session;
+<i>57</i>&nbsp;    private final RealmAuth auth;
+<i>58</i>&nbsp;    private final AdminEventBuilder adminEvent;
+<i>59</i>&nbsp;    private final GroupModel group;
+<i>60</i>&nbsp;
+<b class="fc"><i>61</i>&nbsp;    public GroupResource(RealmModel realm, GroupModel group, KeycloakSession session, RealmAuth auth, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>62</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>63</i>&nbsp;        this.session = session;</b>
+<b class="fc"><i>64</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>65</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<b class="fc"><i>66</i>&nbsp;        this.group = group;</b>
+<b class="fc"><i>67</i>&nbsp;    }</b>
+<i>68</i>&nbsp;
+<i>69</i>&nbsp;    @Context private UriInfo uriInfo;
+<i>70</i>&nbsp;
+<i>71</i>&nbsp;    /**
+<i>72</i>&nbsp;     *
+<i>73</i>&nbsp;     *
+<i>74</i>&nbsp;     * @return
+<i>75</i>&nbsp;     */
+<i>76</i>&nbsp;    @GET
+<i>77</i>&nbsp;    @NoCache
+<i>78</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>79</i>&nbsp;    public GroupRepresentation getGroup() {
+<b class="fc"><i>80</i>&nbsp;        this.auth.requireView();</b>
+<b class="fc"><i>81</i>&nbsp;        return ModelToRepresentation.toGroupHierarchy(group, true);</b>
+<i>82</i>&nbsp;    }
+<i>83</i>&nbsp;
+<i>84</i>&nbsp;    /**
+<i>85</i>&nbsp;     * Update group, ignores subgroups.
+<i>86</i>&nbsp;     *
+<i>87</i>&nbsp;     * @param rep
+<i>88</i>&nbsp;     */
+<i>89</i>&nbsp;    @PUT
+<i>90</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>91</i>&nbsp;    public void updateGroup(GroupRepresentation rep) {
+<b class="nc"><i>92</i>&nbsp;        this.auth.requireManage();</b>
+<b class="nc"><i>93</i>&nbsp;        updateGroup(rep, group);</b>
+<b class="nc"><i>94</i>&nbsp;        adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>95</i>&nbsp;
+<i>96</i>&nbsp;
+<b class="nc"><i>97</i>&nbsp;    }</b>
+<i>98</i>&nbsp;
+<i>99</i>&nbsp;    @DELETE
+<i>100</i>&nbsp;    public void deleteGroup() {
+<b class="fc"><i>101</i>&nbsp;        this.auth.requireManage();</b>
+<b class="fc"><i>102</i>&nbsp;        realm.removeGroup(group);</b>
+<b class="fc"><i>103</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<b class="fc"><i>104</i>&nbsp;    }</b>
+<i>105</i>&nbsp;
+<i>106</i>&nbsp;
+<i>107</i>&nbsp;    /**
+<i>108</i>&nbsp;     * Set or create child.  This will just set the parent if it exists.  Create it and set the parent
+<i>109</i>&nbsp;     * if the group doesn&#39;t exist.
+<i>110</i>&nbsp;     *
+<i>111</i>&nbsp;     * @param rep
+<i>112</i>&nbsp;     */
+<i>113</i>&nbsp;    @POST
+<i>114</i>&nbsp;    @Path(&quot;children&quot;)
+<i>115</i>&nbsp;    @NoCache
+<i>116</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>117</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>118</i>&nbsp;    public Response addChild(GroupRepresentation rep) {
+<b class="fc"><i>119</i>&nbsp;        this.auth.requireManage();</b>
+<b class="fc"><i>120</i>&nbsp;        Response.ResponseBuilder builder = Response.status(204);</b>
+<b class="fc"><i>121</i>&nbsp;        GroupModel child = null;</b>
+<b class="fc"><i>122</i>&nbsp;        if (rep.getId() != null) {</b>
+<b class="nc"><i>123</i>&nbsp;            child = realm.getGroupById(rep.getId());</b>
+<b class="nc"><i>124</i>&nbsp;            if (child == null) {</b>
+<b class="nc"><i>125</i>&nbsp;                throw new NotFoundException(&quot;Could not find child by id&quot;);</b>
+<i>126</i>&nbsp;            }
+<b class="nc"><i>127</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>128</i>&nbsp;        } else {
+<b class="fc"><i>129</i>&nbsp;            child = realm.createGroup(rep.getName());</b>
+<b class="fc"><i>130</i>&nbsp;            updateGroup(rep, child);</b>
+<b class="fc"><i>131</i>&nbsp;            URI uri = uriInfo.getBaseUriBuilder()</b>
+<b class="fc"><i>132</i>&nbsp;                                           .path(uriInfo.getMatchedURIs().get(2))</b>
+<b class="fc"><i>133</i>&nbsp;                                           .path(child.getId()).build();</b>
+<b class="fc"><i>134</i>&nbsp;            builder.status(201).location(uri);</b>
+<b class="fc"><i>135</i>&nbsp;            adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>136</i>&nbsp;
+<i>137</i>&nbsp;        }
+<b class="fc"><i>138</i>&nbsp;        realm.moveGroup(child, group);</b>
+<b class="fc"><i>139</i>&nbsp;        GroupRepresentation childRep = ModelToRepresentation.toGroupHierarchy(child, true);</b>
+<b class="fc"><i>140</i>&nbsp;        return builder.type(MediaType.APPLICATION_JSON_TYPE).entity(childRep).build();</b>
+<i>141</i>&nbsp;    }
+<i>142</i>&nbsp;
+<i>143</i>&nbsp;    public static void updateGroup(GroupRepresentation rep, GroupModel model) {
+<b class="fc"><i>144</i>&nbsp;        if (rep.getName() != null) model.setName(rep.getName());</b>
+<i>145</i>&nbsp;
+<b class="fc"><i>146</i>&nbsp;        if (rep.getAttributes() != null) {</b>
+<b class="nc"><i>147</i>&nbsp;            Set&lt;String&gt; attrsToRemove = new HashSet&lt;&gt;(model.getAttributes().keySet());</b>
+<b class="nc"><i>148</i>&nbsp;            attrsToRemove.removeAll(rep.getAttributes().keySet());</b>
+<b class="nc"><i>149</i>&nbsp;            for (Map.Entry&lt;String, List&lt;String&gt;&gt; attr : rep.getAttributes().entrySet()) {</b>
+<b class="nc"><i>150</i>&nbsp;                model.setAttribute(attr.getKey(), attr.getValue());</b>
+<b class="nc"><i>151</i>&nbsp;            }</b>
+<i>152</i>&nbsp;
+<b class="nc"><i>153</i>&nbsp;            for (String attr : attrsToRemove) {</b>
+<b class="nc"><i>154</i>&nbsp;                model.removeAttribute(attr);</b>
+<b class="nc"><i>155</i>&nbsp;            }</b>
+<i>156</i>&nbsp;        }
+<b class="fc"><i>157</i>&nbsp;    }</b>
+<i>158</i>&nbsp;
+<i>159</i>&nbsp;    @Path(&quot;role-mappings&quot;)
+<i>160</i>&nbsp;    public RoleMapperResource getRoleMappings() {
+<b class="fc"><i>161</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<i>162</i>&nbsp;
+<b class="fc"><i>163</i>&nbsp;        RoleMapperResource resource =  new RoleMapperResource(realm, auth, group, adminEvent);</b>
+<b class="fc"><i>164</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(resource);</b>
+<b class="fc"><i>165</i>&nbsp;        return resource;</b>
+<i>166</i>&nbsp;
+<i>167</i>&nbsp;    }
+<i>168</i>&nbsp;
+<i>169</i>&nbsp;    /**
+<i>170</i>&nbsp;     * Get users
+<i>171</i>&nbsp;     *
+<i>172</i>&nbsp;     * Returns a list of users, filtered according to query parameters
+<i>173</i>&nbsp;     *
+<i>174</i>&nbsp;     * @param firstResult Pagination offset
+<i>175</i>&nbsp;     * @param maxResults Pagination size
+<i>176</i>&nbsp;     * @return
+<i>177</i>&nbsp;     */
+<i>178</i>&nbsp;    @GET
+<i>179</i>&nbsp;    @NoCache
+<i>180</i>&nbsp;    @Path(&quot;members&quot;)
+<i>181</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>182</i>&nbsp;    public List&lt;UserRepresentation&gt; getMembers(@QueryParam(&quot;first&quot;) Integer firstResult,
+<i>183</i>&nbsp;                                               @QueryParam(&quot;max&quot;) Integer maxResults) {
+<b class="nc"><i>184</i>&nbsp;        auth.requireView();</b>
+<b class="nc"><i>185</i>&nbsp;        firstResult = firstResult != null ? firstResult : -1;</b>
+<b class="nc"><i>186</i>&nbsp;        maxResults = maxResults != null ? maxResults : -1;</b>
+<i>187</i>&nbsp;
+<b class="nc"><i>188</i>&nbsp;        List&lt;UserRepresentation&gt; results = new ArrayList&lt;UserRepresentation&gt;();</b>
+<b class="nc"><i>189</i>&nbsp;        List&lt;UserModel&gt; userModels = session.users().getGroupMembers(realm, group, firstResult, maxResults);</b>
+<i>190</i>&nbsp;
+<b class="nc"><i>191</i>&nbsp;        for (UserModel user : userModels) {</b>
+<b class="nc"><i>192</i>&nbsp;            results.add(ModelToRepresentation.toRepresentation(user));</b>
+<b class="nc"><i>193</i>&nbsp;        }</b>
+<b class="nc"><i>194</i>&nbsp;        return results;</b>
+<i>195</i>&nbsp;    }
+<i>196</i>&nbsp;
+<i>197</i>&nbsp;
+<i>198</i>&nbsp;
+<i>199</i>&nbsp;
+<i>200</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

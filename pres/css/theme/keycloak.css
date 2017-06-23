@@ -1,0 +1,247 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
+/**
+ * Default theme for reveal.js.
+ *
+ * Copyright (C) 2011-2012 Hakim El Hattab, http://hakim.se
+ */
+@font-face {
+  font-family: 'Ubuntu Condensed', sans-serif;
+  font-weight: normal;
+  font-style: normal; }
+
+/*********************************************
+ * GLOBAL STYLES
+ *********************************************/
+body {
+  background: #0a568a;
+  background: -moz-radial-gradient(center, circle cover, #75a6c7 0%, #0a568a 100%);
+  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #75a6c7), color-stop(100%, #0a568a));
+  background: -webkit-radial-gradient(center, circle cover, #75a6c7 0%, #0a568a 100%);
+  background: -o-radial-gradient(center, circle cover, #75a6c7 0%, #0a568a 100%);
+  background: -ms-radial-gradient(center, circle cover, #75a6c7 0%, #0a568a0 100%);
+  background: radial-gradient(center, circle cover, #75a6c7 0%, #0a568a 100%);
+  background-color: #0a568a;
+  text-shadow: 0px 0px 50px #0a568a;
+  font-family: 'Ubuntu Condensed', sans-serif;
+}
+
+.reveal {
+  font-family: 'Ubuntu Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: normal;
+  letter-spacing: -0.02em;
+  color: #eeeeee; }
+
+::selection {
+  color: white;
+  background: #ff5e99;
+  text-shadow: none; }
+
+/*********************************************
+ * HEADERS
+ *********************************************/
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  margin: 0 0 20px 0;
+  color: #eeeeee;
+  font-family: 'Ubuntu Condensed', sans-serif;
+  line-height: 0.9em;
+  letter-spacing: 0.02em;
+}
+
+/*********************************************
+ * LINKS
+ *********************************************/
+.reveal a:not(.image) {
+  color: #fff;
+  text-decoration: none;
+  -webkit-transition: color .15s ease;
+  -moz-transition: color .15s ease;
+  -ms-transition: color .15s ease;
+  -o-transition: color .15s ease;
+  transition: color .15s ease; }
+
+.reveal a:not(.image):hover {
+  color: #71e9f4; }
+
+.reveal .roll span:after {
+  color: #fff;
+  background: #0d99a5; }
+
+/*********************************************
+ * IMAGES
+ *********************************************/
+.reveal section img {
+  margin: 15px 0px;
+  border: none; }
+
+.reveal a:hover img {
+  background: rgba(255, 255, 255, 0.2);}
+
+/*********************************************
+ * NAVIGATION CONTROLS
+ *********************************************/
+.reveal .controls div.navigate-left,
+.reveal .controls div.navigate-left.enabled {
+  border-right-color: #13daec; }
+
+.reveal .controls div.navigate-right,
+.reveal .controls div.navigate-right.enabled {
+  border-left-color: #13daec; }
+
+.reveal .controls div.navigate-up,
+.reveal .controls div.navigate-up.enabled {
+  border-bottom-color: #13daec; }
+
+.reveal .controls div.navigate-down,
+.reveal .controls div.navigate-down.enabled {
+  border-top-color: #13daec; }
+
+.reveal .controls div.navigate-left.enabled:hover {
+  border-right-color: #71e9f4; }
+
+.reveal .controls div.navigate-right.enabled:hover {
+  border-left-color: #71e9f4; }
+
+.reveal .controls div.navigate-up.enabled:hover {
+  border-bottom-color: #71e9f4; }
+
+.reveal .controls div.navigate-down.enabled:hover {
+  border-top-color: #71e9f4; }
+
+/*********************************************
+ * PROGRESS BAR
+ *********************************************/
+.reveal .progress {
+  background: rgba(0, 0, 0, 0.2); }
+
+.reveal .progress span {
+  background: #13daec;
+  -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -ms-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -o-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985); }
+
+/*********************************************
+ * SLIDE NUMBER
+ *********************************************/
+.reveal .slide-number {
+  color: #13daec; }
+
+div#menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 9999;
+}
+
+div#config {
+    background-color: rgba(255, 255, 255, .8);
+    box-shadow: 0 0 6px rgba(0,0,0,.3);
+    border: none;
+    border-radius: 0.5em;
+    position: absolute;
+    padding: 1em;
+    top: 60px;
+    right: 15px;
+    z-index: 9999;
+    color: #fff;
+}
+
+button.big, a.big {
+    background-color: #034672;
+    border: 0.05em solid #21799e;
+    border-radius: 0.5em;
+    color: #fff;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 2em;
+    letter-spacing: 0.04em;
+    box-shadow: 0px 0.05em 0.05em rgba(0, 0, 0, 0.15);
+    padding: 0em 0.5em 0.2em 0.5em;
+    margin: 10px;
+}
+
+button.big:hover, a.big:hover {
+    background-color: #21799e;
+}
+
+
+button.normal {
+    background-color: #034672;
+    border: 0.05em solid #21799e;
+    border-radius: 0.5em;
+    color: #fff;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 1em;
+    letter-spacing: 0.04em;
+    box-shadow: 0px 0.05em 0.05em rgba(0, 0, 0, 0.15);
+    padding: 0em 0.5em 0.2em 0.5em;
+    margin: 10px;
+}
+
+button.small {
+    background-color: #034672;
+    border: 1px solid #21799e;
+    border-radius: 0.5em;
+    color: #fff;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 1.1em;
+    letter-spacing: 0.04em;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
+    padding: 2px 10px 5px 10px;
+    margin: 5px;
+}
+
+
+pre {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px !important;
+    margin: 10px !important;
+}
+
+#config .controls {
+    margin-left: 10em;
+}
+
+#config label {
+    color: #666;
+    display: inline-block;
+    width: 10em;
+}
+
+#config input {
+    background-color: rgba(0,0,0,.8);
+    box-shadow: 0 0 6px rgba(0,0,0,.3);
+    border: none;
+    border-radius: 0.5em;
+    padding: 10px;
+    color: white;
+    font-size: 1.2em;
+    font-family: monospace;
+    margin-bottom: 1.5em;
+    width: 30em;
+}
+
+
+.config-error {
+    background-color: #ffcccc;
+    border: 1px solid #21799e;
+    border-radius: 0.5em;
+    color: #ff2c2d;
+    font-family: 'Ubuntu Condensed', sans-serif;
+    font-size: 1.1em;
+    letter-spacing: 0.04em;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.15);
+    padding: 2px 10px 5px 10px;
+    margin: 5px;
+}
+
+.col-2 {
+    float: left;
+    width: 50%;
+}

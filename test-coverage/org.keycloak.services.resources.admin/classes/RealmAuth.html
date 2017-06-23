@@ -1,0 +1,244 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: RealmAuth</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: RealmAuth (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RealmAuth</td>
+<td class="coverageStat">
+  <span class="percent">
+    90%
+  </span>
+  <span class="absValue">
+    (9/ 10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    78.8%
+  </span>
+  <span class="absValue">
+    (26/ 33)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">RealmAuth$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">RealmAuth$Resource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/ 2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (2/ 2)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    92.3%
+  </span>
+  <span class="absValue">
+    (12/ 13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    80.6%
+  </span>
+  <span class="absValue">
+    (29/ 36)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;
+<i>18</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;import org.keycloak.models.AdminRoles;
+<i>21</i>&nbsp;import org.keycloak.models.ClientModel;
+<i>22</i>&nbsp;import org.keycloak.models.ImpersonationConstants;
+<i>23</i>&nbsp;import org.keycloak.services.ForbiddenException;
+<i>24</i>&nbsp;
+<i>25</i>&nbsp;
+<i>26</i>&nbsp;/**
+<i>27</i>&nbsp; * @author &lt;a href=&quot;mailto:sthorger@redhat.com&quot;&gt;Stian Thorgersen&lt;/a&gt;
+<i>28</i>&nbsp; */
+<i>29</i>&nbsp;public class RealmAuth {
+<i>30</i>&nbsp;
+<i>31</i>&nbsp;    private Resource resource;
+<i>32</i>&nbsp;
+<b class="fc"><i>33</i>&nbsp;    public enum Resource {</b>
+<b class="fc"><i>34</i>&nbsp;        CLIENT, USER, REALM, EVENTS, IDENTITY_PROVIDER, IMPERSONATION</b>
+<i>35</i>&nbsp;    }
+<i>36</i>&nbsp;
+<i>37</i>&nbsp;    private AdminAuth auth;
+<i>38</i>&nbsp;    private ClientModel realmAdminApp;
+<i>39</i>&nbsp;
+<b class="fc"><i>40</i>&nbsp;    public RealmAuth(AdminAuth auth, ClientModel realmAdminApp) {</b>
+<b class="fc"><i>41</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>42</i>&nbsp;        this.realmAdminApp = realmAdminApp;</b>
+<b class="fc"><i>43</i>&nbsp;    }</b>
+<i>44</i>&nbsp;
+<i>45</i>&nbsp;    public RealmAuth init(Resource resource) {
+<b class="fc"><i>46</i>&nbsp;        this.resource = resource;</b>
+<b class="fc"><i>47</i>&nbsp;        return this;</b>
+<i>48</i>&nbsp;    }
+<i>49</i>&nbsp;
+<i>50</i>&nbsp;    public AdminAuth getAuth() {
+<b class="nc"><i>51</i>&nbsp;        return auth;</b>
+<i>52</i>&nbsp;    }
+<i>53</i>&nbsp;
+<i>54</i>&nbsp;    public void requireAny() {
+<b class="fc"><i>55</i>&nbsp;        if (!auth.hasOneOfAppRole(realmAdminApp, AdminRoles.ALL_REALM_ROLES)) {</b>
+<b class="nc"><i>56</i>&nbsp;            throw new ForbiddenException();</b>
+<i>57</i>&nbsp;        }
+<b class="fc"><i>58</i>&nbsp;    }</b>
+<i>59</i>&nbsp;
+<i>60</i>&nbsp;    public boolean hasView() {
+<b class="fc"><i>61</i>&nbsp;        return auth.hasOneOfAppRole(realmAdminApp, getViewRole(resource), getManageRole(resource));</b>
+<i>62</i>&nbsp;    }
+<i>63</i>&nbsp;
+<i>64</i>&nbsp;    public boolean hasManage() {
+<b class="fc"><i>65</i>&nbsp;        return auth.hasOneOfAppRole(realmAdminApp, getManageRole(resource));</b>
+<i>66</i>&nbsp;    }
+<i>67</i>&nbsp;
+<i>68</i>&nbsp;    public void requireView() {
+<b class="fc"><i>69</i>&nbsp;        if (!hasView()) {</b>
+<b class="nc"><i>70</i>&nbsp;            throw new ForbiddenException();</b>
+<i>71</i>&nbsp;        }
+<b class="fc"><i>72</i>&nbsp;    }</b>
+<i>73</i>&nbsp;
+<i>74</i>&nbsp;    public void requireManage() {
+<b class="fc"><i>75</i>&nbsp;        if (!hasManage()) {</b>
+<b class="nc"><i>76</i>&nbsp;            throw new ForbiddenException();</b>
+<i>77</i>&nbsp;        }
+<b class="fc"><i>78</i>&nbsp;    }</b>
+<i>79</i>&nbsp;
+<i>80</i>&nbsp;    private String getViewRole(Resource resource) {
+<b class="fc"><i>81</i>&nbsp;        switch (resource) {</b>
+<i>82</i>&nbsp;            case CLIENT:
+<b class="fc"><i>83</i>&nbsp;                return AdminRoles.VIEW_CLIENTS;</b>
+<i>84</i>&nbsp;            case USER:
+<b class="fc"><i>85</i>&nbsp;                return AdminRoles.VIEW_USERS;</b>
+<i>86</i>&nbsp;            case REALM:
+<b class="fc"><i>87</i>&nbsp;                return AdminRoles.VIEW_REALM;</b>
+<i>88</i>&nbsp;            case EVENTS:
+<b class="fc"><i>89</i>&nbsp;                return AdminRoles.VIEW_EVENTS;</b>
+<i>90</i>&nbsp;            case IDENTITY_PROVIDER:
+<b class="fc"><i>91</i>&nbsp;                return AdminRoles.VIEW_IDENTITY_PROVIDERS;</b>
+<i>92</i>&nbsp;            default:
+<b class="nc"><i>93</i>&nbsp;                throw new IllegalStateException();</b>
+<i>94</i>&nbsp;        }
+<i>95</i>&nbsp;    }
+<i>96</i>&nbsp;
+<i>97</i>&nbsp;    private String getManageRole(Resource resource) {
+<b class="fc"><i>98</i>&nbsp;        switch (resource) {</b>
+<i>99</i>&nbsp;            case CLIENT:
+<b class="fc"><i>100</i>&nbsp;                return AdminRoles.MANAGE_CLIENTS;</b>
+<i>101</i>&nbsp;            case USER:
+<b class="fc"><i>102</i>&nbsp;                return AdminRoles.MANAGE_USERS;</b>
+<i>103</i>&nbsp;            case REALM:
+<b class="fc"><i>104</i>&nbsp;                return AdminRoles.MANAGE_REALM;</b>
+<i>105</i>&nbsp;            case EVENTS:
+<b class="fc"><i>106</i>&nbsp;                return AdminRoles.MANAGE_EVENTS;</b>
+<i>107</i>&nbsp;            case IDENTITY_PROVIDER:
+<b class="fc"><i>108</i>&nbsp;                return AdminRoles.MANAGE_IDENTITY_PROVIDERS;</b>
+<i>109</i>&nbsp;            case IMPERSONATION:
+<b class="nc"><i>110</i>&nbsp;                return ImpersonationConstants.IMPERSONATION_ROLE;</b>
+<i>111</i>&nbsp;            default:
+<b class="nc"><i>112</i>&nbsp;                throw new IllegalStateException();</b>
+<i>113</i>&nbsp;        }
+<i>114</i>&nbsp;    }
+<i>115</i>&nbsp;
+<i>116</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,419 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: UserFederationProvidersResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: UserFederationProvidersResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserFederationProvidersResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 86)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">UserFederationProvidersResource$UserFederationProviderFactoryDescription</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 7)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 7)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 18)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 93)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>22</i>&nbsp;import org.keycloak.common.constants.KerberosConstants;
+<i>23</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>24</i>&nbsp;import org.keycloak.mappers.FederationConfigValidationException;
+<i>25</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>26</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>27</i>&nbsp;import org.keycloak.models.UserFederationProvider;
+<i>28</i>&nbsp;import org.keycloak.models.UserFederationProviderFactory;
+<i>29</i>&nbsp;import org.keycloak.models.UserFederationProviderModel;
+<i>30</i>&nbsp;import org.keycloak.models.UserFederationValidatingProviderFactory;
+<i>31</i>&nbsp;import org.keycloak.models.utils.KeycloakModelUtils;
+<i>32</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>33</i>&nbsp;import org.keycloak.provider.ConfiguredProvider;
+<i>34</i>&nbsp;import org.keycloak.provider.ProviderConfigProperty;
+<i>35</i>&nbsp;import org.keycloak.provider.ProviderFactory;
+<i>36</i>&nbsp;import org.keycloak.representations.idm.ConfigPropertyRepresentation;
+<i>37</i>&nbsp;import org.keycloak.representations.idm.CredentialRepresentation;
+<i>38</i>&nbsp;import org.keycloak.representations.idm.UserFederationProviderFactoryRepresentation;
+<i>39</i>&nbsp;import org.keycloak.representations.idm.UserFederationProviderRepresentation;
+<i>40</i>&nbsp;import org.keycloak.services.ErrorResponse;
+<i>41</i>&nbsp;import org.keycloak.services.ErrorResponseException;
+<i>42</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>43</i>&nbsp;import org.keycloak.services.managers.UsersSyncManager;
+<i>44</i>&nbsp;import org.keycloak.timer.TimerProvider;
+<i>45</i>&nbsp;import org.keycloak.utils.CredentialHelper;
+<i>46</i>&nbsp;
+<i>47</i>&nbsp;import javax.ws.rs.Consumes;
+<i>48</i>&nbsp;import javax.ws.rs.GET;
+<i>49</i>&nbsp;import javax.ws.rs.POST;
+<i>50</i>&nbsp;import javax.ws.rs.Path;
+<i>51</i>&nbsp;import javax.ws.rs.PathParam;
+<i>52</i>&nbsp;import javax.ws.rs.Produces;
+<i>53</i>&nbsp;import javax.ws.rs.core.Context;
+<i>54</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>55</i>&nbsp;import javax.ws.rs.core.Response;
+<i>56</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>57</i>&nbsp;
+<i>58</i>&nbsp;import java.text.MessageFormat;
+<i>59</i>&nbsp;import java.util.ArrayList;
+<i>60</i>&nbsp;import java.util.LinkedList;
+<i>61</i>&nbsp;import java.util.List;
+<i>62</i>&nbsp;import java.util.Properties;
+<i>63</i>&nbsp;
+<i>64</i>&nbsp;/**
+<i>65</i>&nbsp; * Base resource for managing users
+<i>66</i>&nbsp; *
+<i>67</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>68</i>&nbsp; * @version $Revision: 1 $
+<i>69</i>&nbsp; */
+<i>70</i>&nbsp;public class UserFederationProvidersResource {
+<b class="nc"><i>71</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>72</i>&nbsp;
+<i>73</i>&nbsp;    protected RealmModel realm;
+<i>74</i>&nbsp;
+<i>75</i>&nbsp;    protected  RealmAuth auth;
+<i>76</i>&nbsp;
+<i>77</i>&nbsp;    protected AdminEventBuilder adminEvent;
+<i>78</i>&nbsp;
+<i>79</i>&nbsp;    @Context
+<i>80</i>&nbsp;    protected UriInfo uriInfo;
+<i>81</i>&nbsp;
+<i>82</i>&nbsp;    @Context
+<i>83</i>&nbsp;    protected KeycloakSession session;
+<i>84</i>&nbsp;
+<b class="nc"><i>85</i>&nbsp;    public UserFederationProvidersResource(RealmModel realm, RealmAuth auth, AdminEventBuilder adminEvent) {</b>
+<b class="nc"><i>86</i>&nbsp;        this.auth = auth;</b>
+<b class="nc"><i>87</i>&nbsp;        this.realm = realm;</b>
+<b class="nc"><i>88</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<i>89</i>&nbsp;
+<b class="nc"><i>90</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<b class="nc"><i>91</i>&nbsp;    }</b>
+<i>92</i>&nbsp;
+<i>93</i>&nbsp;    /**
+<i>94</i>&nbsp;     * Automatically add &quot;kerberos&quot; to required realm credentials if it&#39;s supported by saved provider
+<i>95</i>&nbsp;     *
+<i>96</i>&nbsp;     * @param realm
+<i>97</i>&nbsp;     * @param model
+<i>98</i>&nbsp;     * @return true if kerberos credentials were added
+<i>99</i>&nbsp;     */
+<i>100</i>&nbsp;    public static boolean checkKerberosCredential(KeycloakSession session, RealmModel realm, UserFederationProviderModel model) {
+<b class="nc"><i>101</i>&nbsp;        String allowKerberosCfg = model.getConfig().get(KerberosConstants.ALLOW_KERBEROS_AUTHENTICATION);</b>
+<b class="nc"><i>102</i>&nbsp;        if (Boolean.valueOf(allowKerberosCfg)) {</b>
+<b class="nc"><i>103</i>&nbsp;            CredentialHelper.setAlternativeCredential(session, CredentialRepresentation.KERBEROS, realm);</b>
+<b class="nc"><i>104</i>&nbsp;            return true;</b>
+<i>105</i>&nbsp;        }
+<i>106</i>&nbsp;
+<b class="nc"><i>107</i>&nbsp;        return false;</b>
+<i>108</i>&nbsp;    }
+<i>109</i>&nbsp;
+<i>110</i>&nbsp;    public static void validateFederationProviderConfig(KeycloakSession session, RealmAuth auth, RealmModel realm, UserFederationProviderModel model) {
+<b class="nc"><i>111</i>&nbsp;        UserFederationProviderFactory providerFactory = KeycloakModelUtils.getFederationProviderFactory(session, model);</b>
+<b class="nc"><i>112</i>&nbsp;        if (providerFactory instanceof UserFederationValidatingProviderFactory) {</b>
+<i>113</i>&nbsp;            try {
+<b class="nc"><i>114</i>&nbsp;                ((UserFederationValidatingProviderFactory) providerFactory).validateConfig(realm, model);</b>
+<b class="nc"><i>115</i>&nbsp;            } catch (FederationConfigValidationException fcve) {</b>
+<b class="nc"><i>116</i>&nbsp;                logger.error(fcve.getMessage());</b>
+<b class="nc"><i>117</i>&nbsp;                Properties messages = AdminRoot.getMessages(session, realm, auth.getAuth().getToken().getLocale());</b>
+<b class="nc"><i>118</i>&nbsp;                throw new ErrorResponseException(fcve.getMessage(), MessageFormat.format(messages.getProperty(fcve.getMessage(), fcve.getMessage()), fcve.getParameters()),</b>
+<i>119</i>&nbsp;                        Response.Status.BAD_REQUEST);
+<b class="nc"><i>120</i>&nbsp;            }</b>
+<i>121</i>&nbsp;        }
+<b class="nc"><i>122</i>&nbsp;    }</b>
+<i>123</i>&nbsp;
+<i>124</i>&nbsp;    /**
+<i>125</i>&nbsp;     * Get available provider factories
+<i>126</i>&nbsp;     *
+<i>127</i>&nbsp;     * Returns a list of available provider factories.
+<i>128</i>&nbsp;     *
+<i>129</i>&nbsp;     * @return
+<i>130</i>&nbsp;     */
+<i>131</i>&nbsp;    @GET
+<i>132</i>&nbsp;    @NoCache
+<i>133</i>&nbsp;    @Path(&quot;providers&quot;)
+<i>134</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>135</i>&nbsp;    public List&lt;UserFederationProviderFactoryRepresentation&gt; getProviders() {
+<b class="nc"><i>136</i>&nbsp;        auth.requireView();</b>
+<i>137</i>&nbsp;
+<b class="nc"><i>138</i>&nbsp;        List&lt;UserFederationProviderFactoryRepresentation&gt; providers = new LinkedList&lt;UserFederationProviderFactoryRepresentation&gt;();</b>
+<b class="nc"><i>139</i>&nbsp;        for (ProviderFactory factory : session.getKeycloakSessionFactory().getProviderFactories(UserFederationProvider.class)) {</b>
+<b class="nc"><i>140</i>&nbsp;            UserFederationProviderFactoryRepresentation rep = new UserFederationProviderFactoryRepresentation();</b>
+<b class="nc"><i>141</i>&nbsp;            rep.setId(factory.getId());</b>
+<b class="nc"><i>142</i>&nbsp;            rep.setOptions(((UserFederationProviderFactory)factory).getConfigurationOptions());</b>
+<b class="nc"><i>143</i>&nbsp;            providers.add(rep);</b>
+<b class="nc"><i>144</i>&nbsp;        }</b>
+<b class="nc"><i>145</i>&nbsp;        return providers;</b>
+<i>146</i>&nbsp;    }
+<i>147</i>&nbsp;
+<i>148</i>&nbsp;    /**
+<i>149</i>&nbsp;     * Get factory with given id
+<i>150</i>&nbsp;     *
+<i>151</i>&nbsp;     * @return
+<i>152</i>&nbsp;     */
+<i>153</i>&nbsp;    @GET
+<i>154</i>&nbsp;    @NoCache
+<i>155</i>&nbsp;    @Path(&quot;providers/{id}&quot;)
+<i>156</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>157</i>&nbsp;    public UserFederationProviderFactoryRepresentation getProvider(@PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>158</i>&nbsp;        auth.requireView();</b>
+<i>159</i>&nbsp;
+<b class="nc"><i>160</i>&nbsp;        for (ProviderFactory factory : session.getKeycloakSessionFactory().getProviderFactories(UserFederationProvider.class)) {</b>
+<b class="nc"><i>161</i>&nbsp;            if (!factory.getId().equals(id)) {</b>
+<b class="nc"><i>162</i>&nbsp;                continue;</b>
+<i>163</i>&nbsp;            }
+<i>164</i>&nbsp;
+<b class="nc"><i>165</i>&nbsp;            if (factory instanceof ConfiguredProvider) {</b>
+<i>166</i>&nbsp;
+<b class="nc"><i>167</i>&nbsp;                UserFederationProviderFactoryDescription rep = new UserFederationProviderFactoryDescription();</b>
+<b class="nc"><i>168</i>&nbsp;                rep.setId(factory.getId());</b>
+<i>169</i>&nbsp;
+<b class="nc"><i>170</i>&nbsp;                ConfiguredProvider cp = (ConfiguredProvider) factory;</b>
+<b class="nc"><i>171</i>&nbsp;                rep.setHelpText(cp.getHelpText());</b>
+<b class="nc"><i>172</i>&nbsp;                rep.setProperties(toConfigPropertyRepresentationList(cp.getConfigProperties()));</b>
+<i>173</i>&nbsp;
+<b class="nc"><i>174</i>&nbsp;                return rep;</b>
+<i>175</i>&nbsp;            }
+<i>176</i>&nbsp;
+<b class="nc"><i>177</i>&nbsp;            UserFederationProviderFactoryRepresentation rep = new UserFederationProviderFactoryRepresentation();</b>
+<b class="nc"><i>178</i>&nbsp;            rep.setId(factory.getId());</b>
+<b class="nc"><i>179</i>&nbsp;            rep.setOptions(((UserFederationProviderFactory) factory).getConfigurationOptions());</b>
+<i>180</i>&nbsp;
+<b class="nc"><i>181</i>&nbsp;            return rep;</b>
+<i>182</i>&nbsp;        }
+<b class="nc"><i>183</i>&nbsp;        throw new NotFoundException(&quot;Could not find provider&quot;);</b>
+<i>184</i>&nbsp;    }
+<i>185</i>&nbsp;
+<i>186</i>&nbsp;    /**
+<i>187</i>&nbsp;     * Create a provider
+<i>188</i>&nbsp;     *
+<i>189</i>&nbsp;     * @param rep
+<i>190</i>&nbsp;     * @return
+<i>191</i>&nbsp;     */
+<i>192</i>&nbsp;    @POST
+<i>193</i>&nbsp;    @Path(&quot;instances&quot;)
+<i>194</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>195</i>&nbsp;    public Response createProviderInstance(UserFederationProviderRepresentation rep) {
+<b class="nc"><i>196</i>&nbsp;        auth.requireManage();</b>
+<i>197</i>&nbsp;
+<b class="nc"><i>198</i>&nbsp;        String displayName = rep.getDisplayName();</b>
+<b class="nc"><i>199</i>&nbsp;        if (displayName != null &amp;&amp; displayName.trim().equals(&quot;&quot;)) {</b>
+<b class="nc"><i>200</i>&nbsp;            displayName = null;</b>
+<i>201</i>&nbsp;        }
+<i>202</i>&nbsp;
+<b class="nc"><i>203</i>&nbsp;        UserFederationProviderModel tempModel = new UserFederationProviderModel(null, rep.getProviderName(), rep.getConfig(), rep.getPriority(), displayName, rep.getFullSyncPeriod(), rep.getChangedSyncPeriod(), rep.getLastSync());</b>
+<b class="nc"><i>204</i>&nbsp;        validateFederationProviderConfig(session, auth, realm, tempModel);</b>
+<i>205</i>&nbsp;
+<b class="nc"><i>206</i>&nbsp;        UserFederationProviderModel model = realm.addUserFederationProvider(rep.getProviderName(), rep.getConfig(), rep.getPriority(), displayName,</b>
+<b class="nc"><i>207</i>&nbsp;                rep.getFullSyncPeriod(), rep.getChangedSyncPeriod(), rep.getLastSync());</b>
+<b class="nc"><i>208</i>&nbsp;        new UsersSyncManager().notifyToRefreshPeriodicSync(session, realm, model, false);</b>
+<b class="nc"><i>209</i>&nbsp;        boolean kerberosCredsAdded = checkKerberosCredential(session, realm, model);</b>
+<b class="nc"><i>210</i>&nbsp;        if (kerberosCredsAdded) {</b>
+<b class="nc"><i>211</i>&nbsp;            logger.addedKerberosToRealmCredentials();</b>
+<i>212</i>&nbsp;        }
+<i>213</i>&nbsp;
+<i>214</i>&nbsp;
+<b class="nc"><i>215</i>&nbsp;        adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>216</i>&nbsp;
+<b class="nc"><i>217</i>&nbsp;        return Response.created(uriInfo.getAbsolutePathBuilder().path(model.getId()).build()).build();</b>
+<i>218</i>&nbsp;    }
+<i>219</i>&nbsp;
+<i>220</i>&nbsp;    /**
+<i>221</i>&nbsp;     * Get configured providers
+<i>222</i>&nbsp;     *
+<i>223</i>&nbsp;     * @return
+<i>224</i>&nbsp;     */
+<i>225</i>&nbsp;    @GET
+<i>226</i>&nbsp;    @Path(&quot;instances&quot;)
+<i>227</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>228</i>&nbsp;    @NoCache
+<i>229</i>&nbsp;    public List&lt;UserFederationProviderRepresentation&gt; getUserFederationInstances() {
+<b class="nc"><i>230</i>&nbsp;        auth.requireManage();</b>
+<i>231</i>&nbsp;
+<b class="nc"><i>232</i>&nbsp;        List&lt;UserFederationProviderRepresentation&gt; reps = new LinkedList&lt;UserFederationProviderRepresentation&gt;();</b>
+<b class="nc"><i>233</i>&nbsp;        for (UserFederationProviderModel model : realm.getUserFederationProviders()) {</b>
+<b class="nc"><i>234</i>&nbsp;            UserFederationProviderRepresentation rep = ModelToRepresentation.toRepresentation(model);</b>
+<b class="nc"><i>235</i>&nbsp;            reps.add(rep);</b>
+<b class="nc"><i>236</i>&nbsp;        }</b>
+<b class="nc"><i>237</i>&nbsp;        return reps;</b>
+<i>238</i>&nbsp;    }
+<i>239</i>&nbsp;
+<i>240</i>&nbsp;    @Path(&quot;instances/{id}&quot;)
+<i>241</i>&nbsp;    public UserFederationProviderResource getUserFederationInstance(@PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>242</i>&nbsp;        this.auth.requireView();</b>
+<i>243</i>&nbsp;
+<b class="nc"><i>244</i>&nbsp;        UserFederationProviderModel model = KeycloakModelUtils.findUserFederationProviderById(id, realm);</b>
+<b class="nc"><i>245</i>&nbsp;        if (model == null) {</b>
+<b class="nc"><i>246</i>&nbsp;            throw new NotFoundException(&quot;Could not find federation provider&quot;);</b>
+<i>247</i>&nbsp;        }
+<i>248</i>&nbsp;
+<b class="nc"><i>249</i>&nbsp;        UserFederationProviderResource instanceResource = new UserFederationProviderResource(session, realm, this.auth, model, adminEvent);</b>
+<b class="nc"><i>250</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(instanceResource);</b>
+<b class="nc"><i>251</i>&nbsp;        return instanceResource;</b>
+<i>252</i>&nbsp;    }
+<i>253</i>&nbsp;
+<i>254</i>&nbsp;
+<i>255</i>&nbsp;    private ConfigPropertyRepresentation toConfigPropertyRepresentation(ProviderConfigProperty prop) {
+<i>256</i>&nbsp;
+<b class="nc"><i>257</i>&nbsp;        ConfigPropertyRepresentation propRep = new ConfigPropertyRepresentation();</b>
+<b class="nc"><i>258</i>&nbsp;        propRep.setName(prop.getName());</b>
+<b class="nc"><i>259</i>&nbsp;        propRep.setLabel(prop.getLabel());</b>
+<b class="nc"><i>260</i>&nbsp;        propRep.setType(prop.getType());</b>
+<b class="nc"><i>261</i>&nbsp;        propRep.setDefaultValue(prop.getDefaultValue());</b>
+<b class="nc"><i>262</i>&nbsp;        propRep.setHelpText(prop.getHelpText());</b>
+<i>263</i>&nbsp;
+<b class="nc"><i>264</i>&nbsp;        return propRep;</b>
+<i>265</i>&nbsp;    }
+<i>266</i>&nbsp;
+<i>267</i>&nbsp;    private List&lt;ConfigPropertyRepresentation&gt; toConfigPropertyRepresentationList(List&lt;ProviderConfigProperty&gt; props) {
+<i>268</i>&nbsp;
+<b class="nc"><i>269</i>&nbsp;        List&lt;ConfigPropertyRepresentation&gt; reps = new ArrayList&lt;&gt;(props.size());</b>
+<b class="nc"><i>270</i>&nbsp;        for(ProviderConfigProperty prop : props){</b>
+<b class="nc"><i>271</i>&nbsp;            reps.add(toConfigPropertyRepresentation(prop));</b>
+<b class="nc"><i>272</i>&nbsp;        }</b>
+<i>273</i>&nbsp;
+<b class="nc"><i>274</i>&nbsp;        return reps;</b>
+<i>275</i>&nbsp;    }
+<i>276</i>&nbsp;
+<i>277</i>&nbsp;
+<b class="nc"><i>278</i>&nbsp;    public static class UserFederationProviderFactoryDescription extends UserFederationProviderFactoryRepresentation {</b>
+<i>279</i>&nbsp;
+<i>280</i>&nbsp;        protected String name;
+<i>281</i>&nbsp;
+<i>282</i>&nbsp;        protected String helpText;
+<i>283</i>&nbsp;
+<i>284</i>&nbsp;        protected List&lt;ConfigPropertyRepresentation&gt; properties;
+<i>285</i>&nbsp;
+<i>286</i>&nbsp;        public String getName() {
+<b class="nc"><i>287</i>&nbsp;            return name;</b>
+<i>288</i>&nbsp;        }
+<i>289</i>&nbsp;
+<i>290</i>&nbsp;        public void setName(String name) {
+<b class="nc"><i>291</i>&nbsp;            this.name = name;</b>
+<i>292</i>&nbsp;        }
+<i>293</i>&nbsp;
+<i>294</i>&nbsp;        public String getHelpText() {
+<b class="nc"><i>295</i>&nbsp;            return helpText;</b>
+<i>296</i>&nbsp;        }
+<i>297</i>&nbsp;
+<i>298</i>&nbsp;        public void setHelpText(String helpText) {
+<b class="nc"><i>299</i>&nbsp;            this.helpText = helpText;</b>
+<i>300</i>&nbsp;        }
+<i>301</i>&nbsp;
+<i>302</i>&nbsp;        public List&lt;ConfigPropertyRepresentation&gt; getProperties() {
+<b class="nc"><i>303</i>&nbsp;            return properties;</b>
+<i>304</i>&nbsp;        }
+<i>305</i>&nbsp;
+<i>306</i>&nbsp;        public void setProperties(List&lt;ConfigPropertyRepresentation&gt; properties) {
+<b class="nc"><i>307</i>&nbsp;            this.properties = properties;</b>
+<i>308</i>&nbsp;        }
+<i>309</i>&nbsp;    }
+<i>310</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

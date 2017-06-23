@@ -1,0 +1,221 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: AttackDetectionResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: AttackDetectionResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AttackDetectionResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 32)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.keycloak.common.ClientConnection;
+<i>21</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>22</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>23</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>24</i>&nbsp;import org.keycloak.models.UsernameLoginFailureModel;
+<i>25</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>26</i>&nbsp;import org.keycloak.services.managers.BruteForceProtector;
+<i>27</i>&nbsp;
+<i>28</i>&nbsp;import javax.ws.rs.DELETE;
+<i>29</i>&nbsp;import javax.ws.rs.GET;
+<i>30</i>&nbsp;import javax.ws.rs.Path;
+<i>31</i>&nbsp;import javax.ws.rs.PathParam;
+<i>32</i>&nbsp;import javax.ws.rs.Produces;
+<i>33</i>&nbsp;import javax.ws.rs.core.Context;
+<i>34</i>&nbsp;import javax.ws.rs.core.HttpHeaders;
+<i>35</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>36</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>37</i>&nbsp;import java.util.HashMap;
+<i>38</i>&nbsp;import java.util.Map;
+<i>39</i>&nbsp;
+<i>40</i>&nbsp;/**
+<i>41</i>&nbsp; * Base resource class for the admin REST api of one realm
+<i>42</i>&nbsp; *
+<i>43</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>44</i>&nbsp; * @version $Revision: 1 $
+<i>45</i>&nbsp; */
+<i>46</i>&nbsp;public class AttackDetectionResource {
+<b class="nc"><i>47</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>48</i>&nbsp;    protected RealmAuth auth;
+<i>49</i>&nbsp;    protected RealmModel realm;
+<i>50</i>&nbsp;    private AdminEventBuilder adminEvent;
+<i>51</i>&nbsp;
+<i>52</i>&nbsp;    @Context
+<i>53</i>&nbsp;    protected KeycloakSession session;
+<i>54</i>&nbsp;
+<i>55</i>&nbsp;    @Context
+<i>56</i>&nbsp;    protected UriInfo uriInfo;
+<i>57</i>&nbsp;
+<i>58</i>&nbsp;    @Context
+<i>59</i>&nbsp;    protected ClientConnection connection;
+<i>60</i>&nbsp;
+<i>61</i>&nbsp;    @Context
+<i>62</i>&nbsp;    protected HttpHeaders headers;
+<i>63</i>&nbsp;
+<b class="nc"><i>64</i>&nbsp;    public AttackDetectionResource(RealmAuth auth, RealmModel realm, AdminEventBuilder adminEvent) {</b>
+<b class="nc"><i>65</i>&nbsp;        this.auth = auth;</b>
+<b class="nc"><i>66</i>&nbsp;        this.realm = realm;</b>
+<b class="nc"><i>67</i>&nbsp;        this.adminEvent = adminEvent.realm(realm);</b>
+<i>68</i>&nbsp;
+<b class="nc"><i>69</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<b class="nc"><i>70</i>&nbsp;    }</b>
+<i>71</i>&nbsp;
+<i>72</i>&nbsp;    /**
+<i>73</i>&nbsp;     * Get status of a username in brute force detection
+<i>74</i>&nbsp;     *
+<i>75</i>&nbsp;     * @param username
+<i>76</i>&nbsp;     * @return
+<i>77</i>&nbsp;     */
+<i>78</i>&nbsp;    @GET
+<i>79</i>&nbsp;    @Path(&quot;brute-force/usernames/{username}&quot;)
+<i>80</i>&nbsp;    @NoCache
+<i>81</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>82</i>&nbsp;    public Map&lt;String, Object&gt; bruteForceUserStatus(@PathParam(&quot;username&quot;) String username) {
+<b class="nc"><i>83</i>&nbsp;        auth.requireView();</b>
+<i>84</i>&nbsp;
+<b class="nc"><i>85</i>&nbsp;        Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();</b>
+<b class="nc"><i>86</i>&nbsp;        data.put(&quot;disabled&quot;, false);</b>
+<b class="nc"><i>87</i>&nbsp;        data.put(&quot;numFailures&quot;, 0);</b>
+<b class="nc"><i>88</i>&nbsp;        data.put(&quot;lastFailure&quot;, 0);</b>
+<b class="nc"><i>89</i>&nbsp;        data.put(&quot;lastIPFailure&quot;, &quot;n/a&quot;);</b>
+<b class="nc"><i>90</i>&nbsp;        if (!realm.isBruteForceProtected()) return data;</b>
+<i>91</i>&nbsp;
+<b class="nc"><i>92</i>&nbsp;        UsernameLoginFailureModel model = session.sessions().getUserLoginFailure(realm, username.toLowerCase());</b>
+<b class="nc"><i>93</i>&nbsp;        if (model == null) return data;</b>
+<b class="nc"><i>94</i>&nbsp;        if (session.getProvider(BruteForceProtector.class).isTemporarilyDisabled(session, realm, username)) {</b>
+<b class="nc"><i>95</i>&nbsp;            data.put(&quot;disabled&quot;, true);</b>
+<i>96</i>&nbsp;        }
+<b class="nc"><i>97</i>&nbsp;        data.put(&quot;numFailures&quot;, model.getNumFailures());</b>
+<b class="nc"><i>98</i>&nbsp;        data.put(&quot;lastFailure&quot;, model.getLastFailure());</b>
+<b class="nc"><i>99</i>&nbsp;        data.put(&quot;lastIPFailure&quot;, model.getLastIPFailure());</b>
+<b class="nc"><i>100</i>&nbsp;        return data;</b>
+<i>101</i>&nbsp;    }
+<i>102</i>&nbsp;
+<i>103</i>&nbsp;    /**
+<i>104</i>&nbsp;     * Clear any user login failures for the user
+<i>105</i>&nbsp;     *
+<i>106</i>&nbsp;     * This can release temporary disabled user
+<i>107</i>&nbsp;     *
+<i>108</i>&nbsp;     * @param username
+<i>109</i>&nbsp;     */
+<i>110</i>&nbsp;    @Path(&quot;brute-force/usernames/{username}&quot;)
+<i>111</i>&nbsp;    @DELETE
+<i>112</i>&nbsp;    public void clearBruteForceForUser(@PathParam(&quot;username&quot;) String username) {
+<b class="nc"><i>113</i>&nbsp;        auth.requireManage();</b>
+<i>114</i>&nbsp;
+<b class="nc"><i>115</i>&nbsp;        UsernameLoginFailureModel model = session.sessions().getUserLoginFailure(realm, username.toLowerCase());</b>
+<b class="nc"><i>116</i>&nbsp;        if (model != null) {</b>
+<b class="nc"><i>117</i>&nbsp;            session.sessions().removeUserLoginFailure(realm, username);</b>
+<b class="nc"><i>118</i>&nbsp;            adminEvent.operation(OperationType.DELETE).success();</b>
+<i>119</i>&nbsp;        }
+<b class="nc"><i>120</i>&nbsp;    }</b>
+<i>121</i>&nbsp;
+<i>122</i>&nbsp;    /**
+<i>123</i>&nbsp;     * Clear any user login failures for all users
+<i>124</i>&nbsp;     *
+<i>125</i>&nbsp;     * This can release temporary disabled users
+<i>126</i>&nbsp;     *
+<i>127</i>&nbsp;     */
+<i>128</i>&nbsp;    @Path(&quot;brute-force/usernames&quot;)
+<i>129</i>&nbsp;    @DELETE
+<i>130</i>&nbsp;    public void clearAllBruteForce() {
+<b class="nc"><i>131</i>&nbsp;        auth.requireManage();</b>
+<i>132</i>&nbsp;
+<b class="nc"><i>133</i>&nbsp;        session.sessions().removeAllUserLoginFailures(realm);</b>
+<b class="nc"><i>134</i>&nbsp;        adminEvent.operation(OperationType.DELETE).success();</b>
+<b class="nc"><i>135</i>&nbsp;    }</b>
+<i>136</i>&nbsp;
+<i>137</i>&nbsp;
+<i>138</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

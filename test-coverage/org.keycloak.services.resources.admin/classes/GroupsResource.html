@@ -1,0 +1,210 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: GroupsResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: GroupsResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GroupsResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/ 4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    84.4%
+  </span>
+  <span class="absValue">
+    (27/ 32)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>22</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>23</i>&nbsp;import org.keycloak.models.GroupModel;
+<i>24</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>25</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>26</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>27</i>&nbsp;import org.keycloak.representations.idm.GroupRepresentation;
+<i>28</i>&nbsp;
+<i>29</i>&nbsp;import javax.ws.rs.Consumes;
+<i>30</i>&nbsp;import javax.ws.rs.GET;
+<i>31</i>&nbsp;import javax.ws.rs.POST;
+<i>32</i>&nbsp;import javax.ws.rs.Path;
+<i>33</i>&nbsp;import javax.ws.rs.PathParam;
+<i>34</i>&nbsp;import javax.ws.rs.Produces;
+<i>35</i>&nbsp;import javax.ws.rs.core.Context;
+<i>36</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>37</i>&nbsp;import javax.ws.rs.core.Response;
+<i>38</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>39</i>&nbsp;import java.net.URI;
+<i>40</i>&nbsp;import java.util.List;
+<i>41</i>&nbsp;
+<i>42</i>&nbsp;/**
+<i>43</i>&nbsp; * @author Bill Burke
+<i>44</i>&nbsp; */
+<i>45</i>&nbsp;public class GroupsResource {
+<i>46</i>&nbsp;
+<i>47</i>&nbsp;    private final RealmModel realm;
+<i>48</i>&nbsp;    private final KeycloakSession session;
+<i>49</i>&nbsp;    private final RealmAuth auth;
+<i>50</i>&nbsp;    private final AdminEventBuilder adminEvent;
+<i>51</i>&nbsp;
+<b class="fc"><i>52</i>&nbsp;    public GroupsResource(RealmModel realm, KeycloakSession session, RealmAuth auth, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>53</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>54</i>&nbsp;        this.session = session;</b>
+<b class="fc"><i>55</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>56</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<b class="fc"><i>57</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<i>58</i>&nbsp;
+<b class="fc"><i>59</i>&nbsp;    }</b>
+<i>60</i>&nbsp;
+<i>61</i>&nbsp;    @Context private UriInfo uriInfo;
+<i>62</i>&nbsp;
+<i>63</i>&nbsp;    /**
+<i>64</i>&nbsp;     * Get group hierarchy.  Only name and ids are returned.
+<i>65</i>&nbsp;     *
+<i>66</i>&nbsp;     * @return
+<i>67</i>&nbsp;     */
+<i>68</i>&nbsp;    @GET
+<i>69</i>&nbsp;    @NoCache
+<i>70</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>71</i>&nbsp;    public List&lt;GroupRepresentation&gt; getGroups() {
+<b class="fc"><i>72</i>&nbsp;        auth.requireView();</b>
+<i>73</i>&nbsp;
+<b class="fc"><i>74</i>&nbsp;        return ModelToRepresentation.toGroupHierarchy(realm, false);</b>
+<i>75</i>&nbsp;    }
+<i>76</i>&nbsp;
+<i>77</i>&nbsp;    /**
+<i>78</i>&nbsp;     * Does not expand hierarchy.  Subgroups will not be set.
+<i>79</i>&nbsp;     *
+<i>80</i>&nbsp;     * @param id
+<i>81</i>&nbsp;     * @return
+<i>82</i>&nbsp;     */
+<i>83</i>&nbsp;    @Path(&quot;{id}&quot;)
+<i>84</i>&nbsp;    public GroupResource getGroupById(@PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>85</i>&nbsp;        auth.requireView();</b>
+<i>86</i>&nbsp;
+<b class="fc"><i>87</i>&nbsp;        GroupModel group = realm.getGroupById(id);</b>
+<b class="fc"><i>88</i>&nbsp;        if (group == null) {</b>
+<b class="nc"><i>89</i>&nbsp;            throw new NotFoundException(&quot;Could not find group by id&quot;);</b>
+<i>90</i>&nbsp;        }
+<i>91</i>&nbsp;
+<b class="fc"><i>92</i>&nbsp;        GroupResource resource =  new GroupResource(realm, group, session, this.auth, adminEvent);</b>
+<b class="fc"><i>93</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(resource);</b>
+<b class="fc"><i>94</i>&nbsp;        return resource;</b>
+<i>95</i>&nbsp;    }
+<i>96</i>&nbsp;
+<i>97</i>&nbsp;    /**
+<i>98</i>&nbsp;     * create or add a top level realm groupSet or create child.  This will update the group and set the parent if it exists.  Create it and set the parent
+<i>99</i>&nbsp;     * if the group doesn&#39;t exist.
+<i>100</i>&nbsp;     *
+<i>101</i>&nbsp;     * @param rep
+<i>102</i>&nbsp;     */
+<i>103</i>&nbsp;    @POST
+<i>104</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>105</i>&nbsp;    public Response addTopLevelGroup(GroupRepresentation rep) {
+<b class="fc"><i>106</i>&nbsp;        auth.requireManage();</b>
+<i>107</i>&nbsp;
+<b class="fc"><i>108</i>&nbsp;        GroupModel child = null;</b>
+<b class="fc"><i>109</i>&nbsp;        Response.ResponseBuilder builder = Response.status(204);</b>
+<b class="fc"><i>110</i>&nbsp;        if (rep.getId() != null) {</b>
+<b class="nc"><i>111</i>&nbsp;            child = realm.getGroupById(rep.getId());</b>
+<b class="nc"><i>112</i>&nbsp;            if (child == null) {</b>
+<b class="nc"><i>113</i>&nbsp;                throw new NotFoundException(&quot;Could not find child by id&quot;);</b>
+<i>114</i>&nbsp;            }
+<b class="nc"><i>115</i>&nbsp;            adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>116</i>&nbsp;        } else {
+<b class="fc"><i>117</i>&nbsp;            child = realm.createGroup(rep.getName());</b>
+<b class="fc"><i>118</i>&nbsp;            GroupResource.updateGroup(rep, child);</b>
+<b class="fc"><i>119</i>&nbsp;            URI uri = uriInfo.getAbsolutePathBuilder()</b>
+<b class="fc"><i>120</i>&nbsp;                    .path(child.getId()).build();</b>
+<b class="fc"><i>121</i>&nbsp;            builder.status(201).location(uri);</b>
+<b class="fc"><i>122</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>123</i>&nbsp;        }
+<b class="fc"><i>124</i>&nbsp;        realm.moveGroup(child, null);</b>
+<b class="fc"><i>125</i>&nbsp;        return builder.build();</b>
+<i>126</i>&nbsp;    }
+<i>127</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

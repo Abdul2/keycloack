@@ -1,0 +1,426 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: AdminConsole</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: AdminConsole (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">AdminConsole</td>
+<td class="coverageStat">
+  <span class="percent">
+    72.7%
+  </span>
+  <span class="absValue">
+    (8/ 11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    68.4%
+  </span>
+  <span class="absValue">
+    (52/ 76)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">AdminConsole$WhoAmI</td>
+<td class="coverageStat">
+  <span class="percent">
+    58.3%
+  </span>
+  <span class="absValue">
+    (7/ 12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    52%
+  </span>
+  <span class="absValue">
+    (13/ 25)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    65.2%
+  </span>
+  <span class="absValue">
+    (15/ 23)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    64.4%
+  </span>
+  <span class="absValue">
+    (65/ 101)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import com.fasterxml.jackson.annotation.JsonProperty;
+<i>20</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.HttpRequest;
+<i>22</i>&nbsp;import org.jboss.resteasy.spi.HttpResponse;
+<i>23</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>24</i>&nbsp;import org.keycloak.common.ClientConnection;
+<i>25</i>&nbsp;import org.keycloak.common.Version;
+<i>26</i>&nbsp;import org.keycloak.theme.BrowserSecurityHeaderSetup;
+<i>27</i>&nbsp;import org.keycloak.theme.FreeMarkerException;
+<i>28</i>&nbsp;import org.keycloak.theme.FreeMarkerUtil;
+<i>29</i>&nbsp;import org.keycloak.theme.Theme;
+<i>30</i>&nbsp;import org.keycloak.models.AdminRoles;
+<i>31</i>&nbsp;import org.keycloak.models.ClientModel;
+<i>32</i>&nbsp;import org.keycloak.models.Constants;
+<i>33</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>34</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>35</i>&nbsp;import org.keycloak.models.RoleModel;
+<i>36</i>&nbsp;import org.keycloak.models.UserModel;
+<i>37</i>&nbsp;import org.keycloak.protocol.oidc.OIDCLoginProtocolService;
+<i>38</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>39</i>&nbsp;import org.keycloak.services.managers.AppAuthManager;
+<i>40</i>&nbsp;import org.keycloak.services.managers.ClientManager;
+<i>41</i>&nbsp;import org.keycloak.services.managers.AuthenticationManager;
+<i>42</i>&nbsp;import org.keycloak.services.managers.RealmManager;
+<i>43</i>&nbsp;import org.keycloak.services.resources.KeycloakApplication;
+<i>44</i>&nbsp;import org.keycloak.services.Urls;
+<i>45</i>&nbsp;import org.keycloak.utils.MediaType;
+<i>46</i>&nbsp;
+<i>47</i>&nbsp;import javax.ws.rs.GET;
+<i>48</i>&nbsp;import javax.ws.rs.Path;
+<i>49</i>&nbsp;import javax.ws.rs.Produces;
+<i>50</i>&nbsp;import javax.ws.rs.core.Context;
+<i>51</i>&nbsp;import javax.ws.rs.core.HttpHeaders;
+<i>52</i>&nbsp;import javax.ws.rs.core.Response;
+<i>53</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>54</i>&nbsp;import javax.ws.rs.ext.Providers;
+<i>55</i>&nbsp;import java.io.IOException;
+<i>56</i>&nbsp;import java.net.URI;
+<i>57</i>&nbsp;import java.net.URISyntaxException;
+<i>58</i>&nbsp;import java.util.*;
+<i>59</i>&nbsp;import javax.ws.rs.QueryParam;
+<i>60</i>&nbsp;
+<i>61</i>&nbsp;/**
+<i>62</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>63</i>&nbsp; * @version $Revision: 1 $
+<i>64</i>&nbsp; */
+<i>65</i>&nbsp;public class AdminConsole {
+<b class="fc"><i>66</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>67</i>&nbsp;
+<i>68</i>&nbsp;    @Context
+<i>69</i>&nbsp;    protected UriInfo uriInfo;
+<i>70</i>&nbsp;
+<i>71</i>&nbsp;    @Context
+<i>72</i>&nbsp;    protected ClientConnection clientConnection;
+<i>73</i>&nbsp;
+<i>74</i>&nbsp;    @Context
+<i>75</i>&nbsp;    protected HttpRequest request;
+<i>76</i>&nbsp;
+<i>77</i>&nbsp;    @Context
+<i>78</i>&nbsp;    protected HttpResponse response;
+<i>79</i>&nbsp;
+<i>80</i>&nbsp;    @Context
+<i>81</i>&nbsp;    protected KeycloakSession session;
+<i>82</i>&nbsp;
+<i>83</i>&nbsp;    @Context
+<i>84</i>&nbsp;    protected Providers providers;
+<i>85</i>&nbsp;
+<i>86</i>&nbsp;    @Context
+<i>87</i>&nbsp;    protected KeycloakApplication keycloak;
+<i>88</i>&nbsp;
+<i>89</i>&nbsp;    protected AppAuthManager authManager;
+<i>90</i>&nbsp;    protected RealmModel realm;
+<i>91</i>&nbsp;
+<b class="fc"><i>92</i>&nbsp;    public AdminConsole(RealmModel realm) {</b>
+<b class="fc"><i>93</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>94</i>&nbsp;        this.authManager = new AppAuthManager();</b>
+<b class="fc"><i>95</i>&nbsp;    }</b>
+<i>96</i>&nbsp;
+<i>97</i>&nbsp;    public static class WhoAmI {
+<i>98</i>&nbsp;        protected String userId;
+<i>99</i>&nbsp;        protected String realm;
+<i>100</i>&nbsp;        protected String displayName;
+<i>101</i>&nbsp;
+<i>102</i>&nbsp;        @JsonProperty(&quot;createRealm&quot;)
+<i>103</i>&nbsp;        protected boolean createRealm;
+<b class="fc"><i>104</i>&nbsp;        @JsonProperty(&quot;realm_access&quot;)</b>
+<i>105</i>&nbsp;        protected Map&lt;String, Set&lt;String&gt;&gt; realmAccess = new HashMap&lt;String, Set&lt;String&gt;&gt;();
+<i>106</i>&nbsp;
+<b class="nc"><i>107</i>&nbsp;        public WhoAmI() {</b>
+<b class="nc"><i>108</i>&nbsp;        }</b>
+<i>109</i>&nbsp;
+<b class="fc"><i>110</i>&nbsp;        public WhoAmI(String userId, String realm, String displayName, boolean createRealm, Map&lt;String, Set&lt;String&gt;&gt; realmAccess) {</b>
+<b class="fc"><i>111</i>&nbsp;            this.userId = userId;</b>
+<b class="fc"><i>112</i>&nbsp;            this.realm = realm;</b>
+<b class="fc"><i>113</i>&nbsp;            this.displayName = displayName;</b>
+<b class="fc"><i>114</i>&nbsp;            this.createRealm = createRealm;</b>
+<b class="fc"><i>115</i>&nbsp;            this.realmAccess = realmAccess;</b>
+<b class="fc"><i>116</i>&nbsp;        }</b>
+<i>117</i>&nbsp;
+<i>118</i>&nbsp;        public String getUserId() {
+<b class="fc"><i>119</i>&nbsp;            return userId;</b>
+<i>120</i>&nbsp;        }
+<i>121</i>&nbsp;
+<i>122</i>&nbsp;        public void setUserId(String userId) {
+<b class="nc"><i>123</i>&nbsp;            this.userId = userId;</b>
+<b class="nc"><i>124</i>&nbsp;        }</b>
+<i>125</i>&nbsp;
+<i>126</i>&nbsp;        public String getRealm() {
+<b class="fc"><i>127</i>&nbsp;            return realm;</b>
+<i>128</i>&nbsp;        }
+<i>129</i>&nbsp;
+<i>130</i>&nbsp;        public void setRealm(String realm) {
+<b class="nc"><i>131</i>&nbsp;            this.realm = realm;</b>
+<b class="nc"><i>132</i>&nbsp;        }</b>
+<i>133</i>&nbsp;
+<i>134</i>&nbsp;        public String getDisplayName() {
+<b class="fc"><i>135</i>&nbsp;            return displayName;</b>
+<i>136</i>&nbsp;        }
+<i>137</i>&nbsp;
+<i>138</i>&nbsp;        public void setDisplayName(String displayName) {
+<b class="nc"><i>139</i>&nbsp;            this.displayName = displayName;</b>
+<b class="nc"><i>140</i>&nbsp;        }</b>
+<i>141</i>&nbsp;
+<i>142</i>&nbsp;        public boolean isCreateRealm() {
+<b class="fc"><i>143</i>&nbsp;            return createRealm;</b>
+<i>144</i>&nbsp;        }
+<i>145</i>&nbsp;
+<i>146</i>&nbsp;        public void setCreateRealm(boolean createRealm) {
+<b class="nc"><i>147</i>&nbsp;            this.createRealm = createRealm;</b>
+<b class="nc"><i>148</i>&nbsp;        }</b>
+<i>149</i>&nbsp;
+<i>150</i>&nbsp;        public Map&lt;String, Set&lt;String&gt;&gt; getRealmAccess() {
+<b class="fc"><i>151</i>&nbsp;            return realmAccess;</b>
+<i>152</i>&nbsp;        }
+<i>153</i>&nbsp;
+<i>154</i>&nbsp;        public void setRealmAccess(Map&lt;String, Set&lt;String&gt;&gt; realmAccess) {
+<b class="nc"><i>155</i>&nbsp;            this.realmAccess = realmAccess;</b>
+<b class="nc"><i>156</i>&nbsp;        }</b>
+<i>157</i>&nbsp;    }
+<i>158</i>&nbsp;
+<i>159</i>&nbsp;    /**
+<i>160</i>&nbsp;     * Adapter configuration for the admin console for this realm
+<i>161</i>&nbsp;     *
+<i>162</i>&nbsp;     * @return
+<i>163</i>&nbsp;     */
+<i>164</i>&nbsp;    @Path(&quot;config&quot;)
+<i>165</i>&nbsp;    @GET
+<i>166</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>167</i>&nbsp;    @NoCache
+<i>168</i>&nbsp;    public ClientManager.InstallationAdapterConfig config() {
+<b class="fc"><i>169</i>&nbsp;        ClientModel consoleApp = realm.getClientByClientId(Constants.ADMIN_CONSOLE_CLIENT_ID);</b>
+<b class="fc"><i>170</i>&nbsp;        if (consoleApp == null) {</b>
+<b class="nc"><i>171</i>&nbsp;            throw new NotFoundException(&quot;Could not find admin console client&quot;);</b>
+<i>172</i>&nbsp;        }
+<b class="fc"><i>173</i>&nbsp;        return new ClientManager().toInstallationRepresentation(realm, consoleApp, keycloak.getBaseUri(uriInfo));</b>
+<i>174</i>&nbsp;
+<i>175</i>&nbsp;    }
+<i>176</i>&nbsp;
+<i>177</i>&nbsp;    /**
+<i>178</i>&nbsp;     * Permission information
+<i>179</i>&nbsp;     *
+<i>180</i>&nbsp;     * @param headers
+<i>181</i>&nbsp;     * @return
+<i>182</i>&nbsp;     */
+<i>183</i>&nbsp;    @Path(&quot;whoami&quot;)
+<i>184</i>&nbsp;    @GET
+<i>185</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>186</i>&nbsp;    @NoCache
+<i>187</i>&nbsp;    public Response whoAmI(final @Context HttpHeaders headers) {
+<b class="fc"><i>188</i>&nbsp;        RealmManager realmManager = new RealmManager(session);</b>
+<b class="fc"><i>189</i>&nbsp;        AuthenticationManager.AuthResult authResult = authManager.authenticateBearerToken(session, realm, uriInfo, clientConnection, headers);</b>
+<b class="fc"><i>190</i>&nbsp;        if (authResult == null) {</b>
+<b class="nc"><i>191</i>&nbsp;            return Response.status(401).build();</b>
+<i>192</i>&nbsp;        }
+<b class="fc"><i>193</i>&nbsp;        UserModel user= authResult.getUser();</b>
+<i>194</i>&nbsp;        String displayName;
+<b class="fc"><i>195</i>&nbsp;        if ((user.getFirstName() != null &amp;&amp; !user.getFirstName().trim().equals(&quot;&quot;)) || (user.getLastName() != null &amp;&amp; !user.getLastName().trim().equals(&quot;&quot;))) {</b>
+<b class="fc"><i>196</i>&nbsp;            displayName = user.getFirstName();</b>
+<b class="fc"><i>197</i>&nbsp;            if (user.getLastName() != null) {</b>
+<b class="fc"><i>198</i>&nbsp;                displayName = displayName != null ? displayName + &quot; &quot; + user.getLastName() : user.getLastName();</b>
+<i>199</i>&nbsp;            }
+<i>200</i>&nbsp;        } else {
+<b class="nc"><i>201</i>&nbsp;            displayName = user.getUsername();</b>
+<i>202</i>&nbsp;        }
+<i>203</i>&nbsp;
+<b class="fc"><i>204</i>&nbsp;        RealmModel masterRealm = getAdminstrationRealm(realmManager);</b>
+<b class="fc"><i>205</i>&nbsp;        Map&lt;String, Set&lt;String&gt;&gt; realmAccess = new HashMap&lt;String, Set&lt;String&gt;&gt;();</b>
+<b class="fc"><i>206</i>&nbsp;        if (masterRealm == null)</b>
+<b class="nc"><i>207</i>&nbsp;            throw new NotFoundException(&quot;No realm found&quot;);</b>
+<b class="fc"><i>208</i>&nbsp;        boolean createRealm = false;</b>
+<b class="fc"><i>209</i>&nbsp;        if (realm.equals(masterRealm)) {</b>
+<b class="nc"><i>210</i>&nbsp;            logger.debug(&quot;setting up realm access for a master realm user&quot;);</b>
+<b class="nc"><i>211</i>&nbsp;            createRealm = user.hasRole(masterRealm.getRole(AdminRoles.CREATE_REALM));</b>
+<b class="nc"><i>212</i>&nbsp;            addMasterRealmAccess(realm, user, realmAccess);</b>
+<i>213</i>&nbsp;        } else {
+<b class="fc"><i>214</i>&nbsp;            logger.debug(&quot;setting up realm access for a realm user&quot;);</b>
+<b class="fc"><i>215</i>&nbsp;            addRealmAccess(realm, user, realmAccess);</b>
+<i>216</i>&nbsp;        }
+<i>217</i>&nbsp;
+<b class="fc"><i>218</i>&nbsp;        return Response.ok(new WhoAmI(user.getId(), realm.getName(), displayName, createRealm, realmAccess)).build();</b>
+<i>219</i>&nbsp;    }
+<i>220</i>&nbsp;
+<i>221</i>&nbsp;    private void addRealmAccess(RealmModel realm, UserModel user, Map&lt;String, Set&lt;String&gt;&gt; realmAdminAccess) {
+<b class="fc"><i>222</i>&nbsp;        RealmManager realmManager = new RealmManager(session);</b>
+<b class="fc"><i>223</i>&nbsp;        ClientModel realmAdminApp = realm.getClientByClientId(realmManager.getRealmAdminClientId(realm));</b>
+<b class="fc"><i>224</i>&nbsp;        Set&lt;RoleModel&gt; roles = realmAdminApp.getRoles();</b>
+<b class="fc"><i>225</i>&nbsp;        for (RoleModel role : roles) {</b>
+<b class="fc"><i>226</i>&nbsp;            if (!user.hasRole(role)) continue;</b>
+<b class="fc"><i>227</i>&nbsp;            if (!realmAdminAccess.containsKey(realm.getName())) {</b>
+<b class="fc"><i>228</i>&nbsp;                realmAdminAccess.put(realm.getName(), new HashSet&lt;String&gt;());</b>
+<i>229</i>&nbsp;            }
+<b class="fc"><i>230</i>&nbsp;            realmAdminAccess.get(realm.getName()).add(role.getName());</b>
+<b class="fc"><i>231</i>&nbsp;        }</b>
+<i>232</i>&nbsp;
+<b class="fc"><i>233</i>&nbsp;    }</b>
+<i>234</i>&nbsp;
+<i>235</i>&nbsp;    private void addMasterRealmAccess(RealmModel masterRealm, UserModel user, Map&lt;String, Set&lt;String&gt;&gt; realmAdminAccess) {
+<b class="nc"><i>236</i>&nbsp;        List&lt;RealmModel&gt; realms = session.realms().getRealms();</b>
+<b class="nc"><i>237</i>&nbsp;        for (RealmModel realm : realms) {</b>
+<b class="nc"><i>238</i>&nbsp;            ClientModel realmAdminApp = realm.getMasterAdminClient();</b>
+<b class="nc"><i>239</i>&nbsp;            Set&lt;RoleModel&gt; roles = realmAdminApp.getRoles();</b>
+<b class="nc"><i>240</i>&nbsp;            for (RoleModel role : roles) {</b>
+<b class="nc"><i>241</i>&nbsp;                if (!user.hasRole(role)) continue;</b>
+<b class="nc"><i>242</i>&nbsp;                if (!realmAdminAccess.containsKey(realm.getName())) {</b>
+<b class="nc"><i>243</i>&nbsp;                    realmAdminAccess.put(realm.getName(), new HashSet&lt;String&gt;());</b>
+<i>244</i>&nbsp;                }
+<b class="nc"><i>245</i>&nbsp;                realmAdminAccess.get(realm.getName()).add(role.getName());</b>
+<b class="nc"><i>246</i>&nbsp;            }</b>
+<b class="nc"><i>247</i>&nbsp;        }</b>
+<b class="nc"><i>248</i>&nbsp;    }</b>
+<i>249</i>&nbsp;
+<i>250</i>&nbsp;    /**
+<i>251</i>&nbsp;     * Logout from the admin console
+<i>252</i>&nbsp;     *
+<i>253</i>&nbsp;     * @return
+<i>254</i>&nbsp;     */
+<i>255</i>&nbsp;    @Path(&quot;logout&quot;)
+<i>256</i>&nbsp;    @GET
+<i>257</i>&nbsp;    @NoCache
+<i>258</i>&nbsp;    public Response logout() {
+<b class="nc"><i>259</i>&nbsp;        URI redirect = AdminRoot.adminConsoleUrl(uriInfo).build(realm.getName());</b>
+<i>260</i>&nbsp;
+<b class="nc"><i>261</i>&nbsp;        return Response.status(302).location(</b>
+<b class="nc"><i>262</i>&nbsp;                OIDCLoginProtocolService.logoutUrl(uriInfo).queryParam(&quot;redirect_uri&quot;, redirect.toString()).build(realm.getName())</b>
+<b class="nc"><i>263</i>&nbsp;        ).build();</b>
+<i>264</i>&nbsp;    }
+<i>265</i>&nbsp;
+<i>266</i>&nbsp;    protected RealmModel getAdminstrationRealm(RealmManager realmManager) {
+<b class="fc"><i>267</i>&nbsp;        return realmManager.getKeycloakAdminstrationRealm();</b>
+<i>268</i>&nbsp;    }
+<i>269</i>&nbsp;
+<i>270</i>&nbsp;    /**
+<i>271</i>&nbsp;     * Main page of this realm&#39;s admin console
+<i>272</i>&nbsp;     *
+<i>273</i>&nbsp;     * @return
+<i>274</i>&nbsp;     * @throws URISyntaxException
+<i>275</i>&nbsp;     */
+<i>276</i>&nbsp;    @GET
+<i>277</i>&nbsp;    @NoCache
+<i>278</i>&nbsp;    public Response getMainPage() throws URISyntaxException, IOException, FreeMarkerException {
+<b class="fc"><i>279</i>&nbsp;        if (!uriInfo.getRequestUri().getPath().endsWith(&quot;/&quot;)) {</b>
+<b class="fc"><i>280</i>&nbsp;            return Response.status(302).location(uriInfo.getRequestUriBuilder().path(&quot;/&quot;).build()).build();</b>
+<i>281</i>&nbsp;        } else {
+<b class="fc"><i>282</i>&nbsp;            Theme theme = AdminRoot.getTheme(session, realm);</b>
+<i>283</i>&nbsp;
+<b class="fc"><i>284</i>&nbsp;            Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();</b>
+<i>285</i>&nbsp;
+<b class="fc"><i>286</i>&nbsp;            URI baseUri = uriInfo.getBaseUri();</b>
+<i>287</i>&nbsp;
+<b class="fc"><i>288</i>&nbsp;            String authUrl = baseUri.toString();</b>
+<b class="fc"><i>289</i>&nbsp;            authUrl = authUrl.substring(0, authUrl.length() - 1);</b>
+<i>290</i>&nbsp;
+<b class="fc"><i>291</i>&nbsp;            map.put(&quot;authUrl&quot;, authUrl);</b>
+<b class="fc"><i>292</i>&nbsp;            map.put(&quot;resourceUrl&quot;, Urls.themeRoot(baseUri) + &quot;/admin/&quot; + theme.getName());</b>
+<b class="fc"><i>293</i>&nbsp;            map.put(&quot;resourceVersion&quot;, Version.RESOURCES_VERSION);</b>
+<b class="fc"><i>294</i>&nbsp;            map.put(&quot;properties&quot;, theme.getProperties());</b>
+<i>295</i>&nbsp;
+<b class="fc"><i>296</i>&nbsp;            FreeMarkerUtil freeMarkerUtil = new FreeMarkerUtil();</b>
+<b class="fc"><i>297</i>&nbsp;            String result = freeMarkerUtil.processTemplate(map, &quot;index.ftl&quot;, theme);</b>
+<b class="fc"><i>298</i>&nbsp;            Response.ResponseBuilder builder = Response.status(Response.Status.OK).type(MediaType.TEXT_HTML_UTF_8).language(Locale.ENGLISH).entity(result);</b>
+<b class="fc"><i>299</i>&nbsp;            BrowserSecurityHeaderSetup.headers(builder, realm);</b>
+<b class="fc"><i>300</i>&nbsp;            return builder.build();</b>
+<i>301</i>&nbsp;        }
+<i>302</i>&nbsp;    }
+<i>303</i>&nbsp;
+<i>304</i>&nbsp;    @GET
+<i>305</i>&nbsp;    @Path(&quot;{indexhtml: index.html}&quot;) // this expression is a hack to get around jaxdoclet generation bug.  Doesn&#39;t like index.html
+<i>306</i>&nbsp;    public Response getIndexHtmlRedirect() {
+<b class="nc"><i>307</i>&nbsp;        return Response.status(302).location(uriInfo.getRequestUriBuilder().path(&quot;../&quot;).build()).build();</b>
+<i>308</i>&nbsp;    }
+<i>309</i>&nbsp;
+<i>310</i>&nbsp;    @GET
+<i>311</i>&nbsp;    @Path(&quot;messages.json&quot;)
+<i>312</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>313</i>&nbsp;    public Properties getMessages(@QueryParam(&quot;lang&quot;) String lang) {
+<b class="fc"><i>314</i>&nbsp;        return AdminRoot.getMessages(session, realm, &quot;admin-messages&quot;, lang);</b>
+<i>315</i>&nbsp;    }
+<i>316</i>&nbsp;
+<i>317</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,377 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: RoleContainerResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: RoleContainerResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RoleContainerResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    54.5%
+  </span>
+  <span class="absValue">
+    (6/ 11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (38/ 76)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;
+<i>18</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>19</i>&nbsp;
+<i>20</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>22</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>23</i>&nbsp;import org.keycloak.models.ClientModel;
+<i>24</i>&nbsp;import org.keycloak.models.ModelDuplicateException;
+<i>25</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>26</i>&nbsp;import org.keycloak.models.RoleContainerModel;
+<i>27</i>&nbsp;import org.keycloak.models.RoleModel;
+<i>28</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>29</i>&nbsp;import org.keycloak.representations.idm.RoleRepresentation;
+<i>30</i>&nbsp;import org.keycloak.services.ErrorResponse;
+<i>31</i>&nbsp;
+<i>32</i>&nbsp;import javax.ws.rs.Consumes;
+<i>33</i>&nbsp;import javax.ws.rs.DELETE;
+<i>34</i>&nbsp;import javax.ws.rs.GET;
+<i>35</i>&nbsp;import javax.ws.rs.POST;
+<i>36</i>&nbsp;import javax.ws.rs.PUT;
+<i>37</i>&nbsp;import javax.ws.rs.Path;
+<i>38</i>&nbsp;import javax.ws.rs.PathParam;
+<i>39</i>&nbsp;import javax.ws.rs.Produces;
+<i>40</i>&nbsp;import javax.ws.rs.core.Context;
+<i>41</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>42</i>&nbsp;import javax.ws.rs.core.Response;
+<i>43</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>44</i>&nbsp;
+<i>45</i>&nbsp;import java.util.ArrayList;
+<i>46</i>&nbsp;import java.util.List;
+<i>47</i>&nbsp;import java.util.Set;
+<i>48</i>&nbsp;
+<i>49</i>&nbsp;/**
+<i>50</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>51</i>&nbsp; * @version $Revision: 1 $
+<i>52</i>&nbsp; */
+<i>53</i>&nbsp;public class RoleContainerResource extends RoleResource {
+<i>54</i>&nbsp;    private final RealmModel realm;
+<i>55</i>&nbsp;    private final RealmAuth auth;
+<i>56</i>&nbsp;    protected RoleContainerModel roleContainer;
+<i>57</i>&nbsp;    private AdminEventBuilder adminEvent;
+<i>58</i>&nbsp;    private UriInfo uriInfo;
+<i>59</i>&nbsp;
+<i>60</i>&nbsp;    public RoleContainerResource(UriInfo uriInfo, RealmModel realm, RealmAuth auth, RoleContainerModel roleContainer, AdminEventBuilder adminEvent) {
+<b class="fc"><i>61</i>&nbsp;        super(realm);</b>
+<b class="fc"><i>62</i>&nbsp;        this.uriInfo = uriInfo;</b>
+<b class="fc"><i>63</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>64</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>65</i>&nbsp;        this.roleContainer = roleContainer;</b>
+<b class="fc"><i>66</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<b class="fc"><i>67</i>&nbsp;    }</b>
+<i>68</i>&nbsp;
+<i>69</i>&nbsp;    /**
+<i>70</i>&nbsp;     * Get all roles for the realm or client
+<i>71</i>&nbsp;     *
+<i>72</i>&nbsp;     * @return
+<i>73</i>&nbsp;     */
+<i>74</i>&nbsp;    @GET
+<i>75</i>&nbsp;    @NoCache
+<i>76</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>77</i>&nbsp;    public List&lt;RoleRepresentation&gt; getRoles() {
+<b class="fc"><i>78</i>&nbsp;        auth.requireAny();</b>
+<i>79</i>&nbsp;
+<b class="fc"><i>80</i>&nbsp;        Set&lt;RoleModel&gt; roleModels = roleContainer.getRoles();</b>
+<b class="fc"><i>81</i>&nbsp;        List&lt;RoleRepresentation&gt; roles = new ArrayList&lt;RoleRepresentation&gt;();</b>
+<b class="fc"><i>82</i>&nbsp;        for (RoleModel roleModel : roleModels) {</b>
+<b class="fc"><i>83</i>&nbsp;            roles.add(ModelToRepresentation.toRepresentation(roleModel));</b>
+<b class="fc"><i>84</i>&nbsp;        }</b>
+<b class="fc"><i>85</i>&nbsp;        return roles;</b>
+<i>86</i>&nbsp;    }
+<i>87</i>&nbsp;
+<i>88</i>&nbsp;    /**
+<i>89</i>&nbsp;     * Create a new role for the realm or client
+<i>90</i>&nbsp;     *
+<i>91</i>&nbsp;     * @param rep
+<i>92</i>&nbsp;     * @return
+<i>93</i>&nbsp;     */
+<i>94</i>&nbsp;    @POST
+<i>95</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>96</i>&nbsp;    public Response createRole(final RoleRepresentation rep) {
+<b class="fc"><i>97</i>&nbsp;        auth.requireManage();</b>
+<i>98</i>&nbsp;
+<i>99</i>&nbsp;        try {
+<b class="fc"><i>100</i>&nbsp;            RoleModel role = roleContainer.addRole(rep.getName());</b>
+<b class="fc"><i>101</i>&nbsp;            role.setDescription(rep.getDescription());</b>
+<b class="fc"><i>102</i>&nbsp;            boolean scopeParamRequired = rep.isScopeParamRequired()==null ? false : rep.isScopeParamRequired();</b>
+<b class="fc"><i>103</i>&nbsp;            role.setScopeParamRequired(scopeParamRequired);</b>
+<i>104</i>&nbsp;
+<b class="fc"><i>105</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo, role.getId()).representation(rep).success();</b>
+<i>106</i>&nbsp;
+<b class="fc"><i>107</i>&nbsp;            return Response.created(uriInfo.getAbsolutePathBuilder().path(role.getName()).build()).build();</b>
+<b class="nc"><i>108</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="nc"><i>109</i>&nbsp;            return ErrorResponse.exists(&quot;Role with name &quot; + rep.getName() + &quot; already exists&quot;);</b>
+<i>110</i>&nbsp;        }
+<i>111</i>&nbsp;    }
+<i>112</i>&nbsp;
+<i>113</i>&nbsp;    /**
+<i>114</i>&nbsp;     * Get a role by name
+<i>115</i>&nbsp;     *
+<i>116</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>117</i>&nbsp;     * @return
+<i>118</i>&nbsp;     */
+<i>119</i>&nbsp;    @Path(&quot;{role-name}&quot;)
+<i>120</i>&nbsp;    @GET
+<i>121</i>&nbsp;    @NoCache
+<i>122</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>123</i>&nbsp;    public RoleRepresentation getRole(final @PathParam(&quot;role-name&quot;) String roleName) {
+<b class="fc"><i>124</i>&nbsp;        auth.requireView();</b>
+<i>125</i>&nbsp;
+<b class="fc"><i>126</i>&nbsp;        RoleModel roleModel = roleContainer.getRole(roleName);</b>
+<b class="fc"><i>127</i>&nbsp;        if (roleModel == null) {</b>
+<b class="fc"><i>128</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>129</i>&nbsp;        }
+<i>130</i>&nbsp;
+<b class="fc"><i>131</i>&nbsp;        return getRole(roleModel);</b>
+<i>132</i>&nbsp;    }
+<i>133</i>&nbsp;
+<i>134</i>&nbsp;    /**
+<i>135</i>&nbsp;     * Delete a role by name
+<i>136</i>&nbsp;     *
+<i>137</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>138</i>&nbsp;     */
+<i>139</i>&nbsp;    @Path(&quot;{role-name}&quot;)
+<i>140</i>&nbsp;    @DELETE
+<i>141</i>&nbsp;    @NoCache
+<i>142</i>&nbsp;    public void deleteRole(final @PathParam(&quot;role-name&quot;) String roleName) {
+<b class="fc"><i>143</i>&nbsp;        auth.requireManage();</b>
+<i>144</i>&nbsp;
+<b class="fc"><i>145</i>&nbsp;        RoleRepresentation rep = getRole(roleName);</b>
+<b class="fc"><i>146</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="fc"><i>147</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>148</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>149</i>&nbsp;        }
+<b class="fc"><i>150</i>&nbsp;        deleteRole(role);</b>
+<i>151</i>&nbsp;
+<b class="fc"><i>152</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<i>153</i>&nbsp;
+<b class="fc"><i>154</i>&nbsp;    }</b>
+<i>155</i>&nbsp;
+<i>156</i>&nbsp;    /**
+<i>157</i>&nbsp;     * Update a role by name
+<i>158</i>&nbsp;     *
+<i>159</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>160</i>&nbsp;     * @param rep
+<i>161</i>&nbsp;     * @return
+<i>162</i>&nbsp;     */
+<i>163</i>&nbsp;    @Path(&quot;{role-name}&quot;)
+<i>164</i>&nbsp;    @PUT
+<i>165</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>166</i>&nbsp;    public Response updateRole(final @PathParam(&quot;role-name&quot;) String roleName, final RoleRepresentation rep) {
+<b class="nc"><i>167</i>&nbsp;        auth.requireManage();</b>
+<i>168</i>&nbsp;
+<b class="nc"><i>169</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="nc"><i>170</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>171</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>172</i>&nbsp;        }
+<i>173</i>&nbsp;        try {
+<b class="nc"><i>174</i>&nbsp;            updateRole(rep, role);</b>
+<i>175</i>&nbsp;
+<b class="nc"><i>176</i>&nbsp;            adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>177</i>&nbsp;
+<b class="nc"><i>178</i>&nbsp;            return Response.noContent().build();</b>
+<b class="nc"><i>179</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="nc"><i>180</i>&nbsp;            return ErrorResponse.exists(&quot;Role with name &quot; + rep.getName() + &quot; already exists&quot;);</b>
+<i>181</i>&nbsp;        }
+<i>182</i>&nbsp;    }
+<i>183</i>&nbsp;
+<i>184</i>&nbsp;    /**
+<i>185</i>&nbsp;     * Add a composite to the role
+<i>186</i>&nbsp;     *
+<i>187</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>188</i>&nbsp;     * @param roles
+<i>189</i>&nbsp;     */
+<i>190</i>&nbsp;    @Path(&quot;{role-name}/composites&quot;)
+<i>191</i>&nbsp;    @POST
+<i>192</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>193</i>&nbsp;    public void addComposites(final @PathParam(&quot;role-name&quot;) String roleName, List&lt;RoleRepresentation&gt; roles) {
+<b class="fc"><i>194</i>&nbsp;        auth.requireManage();</b>
+<i>195</i>&nbsp;
+<b class="fc"><i>196</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="fc"><i>197</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>198</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>199</i>&nbsp;        }
+<b class="fc"><i>200</i>&nbsp;        addComposites(adminEvent, uriInfo, roles, role);</b>
+<b class="fc"><i>201</i>&nbsp;    }</b>
+<i>202</i>&nbsp;
+<i>203</i>&nbsp;    /**
+<i>204</i>&nbsp;     * Get composites of the role
+<i>205</i>&nbsp;     *
+<i>206</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>207</i>&nbsp;     * @return
+<i>208</i>&nbsp;     */
+<i>209</i>&nbsp;    @Path(&quot;{role-name}/composites&quot;)
+<i>210</i>&nbsp;    @GET
+<i>211</i>&nbsp;    @NoCache
+<i>212</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>213</i>&nbsp;    public Set&lt;RoleRepresentation&gt; getRoleComposites(final @PathParam(&quot;role-name&quot;) String roleName) {
+<b class="nc"><i>214</i>&nbsp;        auth.requireManage();</b>
+<i>215</i>&nbsp;
+<b class="nc"><i>216</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="nc"><i>217</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>218</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>219</i>&nbsp;        }
+<b class="nc"><i>220</i>&nbsp;        return getRoleComposites(role);</b>
+<i>221</i>&nbsp;    }
+<i>222</i>&nbsp;
+<i>223</i>&nbsp;    /**
+<i>224</i>&nbsp;     * Get realm-level roles of the role&#39;s composite
+<i>225</i>&nbsp;     *
+<i>226</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>227</i>&nbsp;     * @return
+<i>228</i>&nbsp;     */
+<i>229</i>&nbsp;    @Path(&quot;{role-name}/composites/realm&quot;)
+<i>230</i>&nbsp;    @GET
+<i>231</i>&nbsp;    @NoCache
+<i>232</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>233</i>&nbsp;    public Set&lt;RoleRepresentation&gt; getRealmRoleComposites(final @PathParam(&quot;role-name&quot;) String roleName) {
+<b class="nc"><i>234</i>&nbsp;        auth.requireManage();</b>
+<i>235</i>&nbsp;
+<b class="nc"><i>236</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="nc"><i>237</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>238</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>239</i>&nbsp;        }
+<b class="nc"><i>240</i>&nbsp;        return getRealmRoleComposites(role);</b>
+<i>241</i>&nbsp;    }
+<i>242</i>&nbsp;
+<i>243</i>&nbsp;    /**
+<i>244</i>&nbsp;     * An app-level roles for the specified app for the role&#39;s composite
+<i>245</i>&nbsp;     *
+<i>246</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>247</i>&nbsp;     * @param client
+<i>248</i>&nbsp;     * @return
+<i>249</i>&nbsp;     */
+<i>250</i>&nbsp;    @Path(&quot;{role-name}/composites/clients/{client}&quot;)
+<i>251</i>&nbsp;    @GET
+<i>252</i>&nbsp;    @NoCache
+<i>253</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>254</i>&nbsp;    public Set&lt;RoleRepresentation&gt; getClientRoleComposites(@Context final UriInfo uriInfo,
+<i>255</i>&nbsp;                                                                final @PathParam(&quot;role-name&quot;) String roleName,
+<i>256</i>&nbsp;                                                                final @PathParam(&quot;client&quot;) String client) {
+<b class="nc"><i>257</i>&nbsp;        auth.requireManage();</b>
+<i>258</i>&nbsp;
+<b class="nc"><i>259</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="nc"><i>260</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>261</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>262</i>&nbsp;        }
+<b class="nc"><i>263</i>&nbsp;        ClientModel clientModel = realm.getClientById(client);</b>
+<b class="nc"><i>264</i>&nbsp;        if (client == null) {</b>
+<b class="nc"><i>265</i>&nbsp;            throw new NotFoundException(&quot;Could not find client&quot;);</b>
+<i>266</i>&nbsp;
+<i>267</i>&nbsp;        }
+<b class="nc"><i>268</i>&nbsp;        return getClientRoleComposites(clientModel, role);</b>
+<i>269</i>&nbsp;    }
+<i>270</i>&nbsp;
+<i>271</i>&nbsp;
+<i>272</i>&nbsp;    /**
+<i>273</i>&nbsp;     * Remove roles from the role&#39;s composite
+<i>274</i>&nbsp;     *
+<i>275</i>&nbsp;     * @param roleName role&#39;s name (not id!)
+<i>276</i>&nbsp;     * @param roles roles to remove
+<i>277</i>&nbsp;     */
+<i>278</i>&nbsp;    @Path(&quot;{role-name}/composites&quot;)
+<i>279</i>&nbsp;    @DELETE
+<i>280</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>281</i>&nbsp;    public void deleteComposites(
+<i>282</i>&nbsp;                                   final @PathParam(&quot;role-name&quot;) String roleName,
+<i>283</i>&nbsp;                                   List&lt;RoleRepresentation&gt; roles) {
+<b class="nc"><i>284</i>&nbsp;        auth.requireManage();</b>
+<i>285</i>&nbsp;
+<b class="nc"><i>286</i>&nbsp;        RoleModel role = roleContainer.getRole(roleName);</b>
+<b class="nc"><i>287</i>&nbsp;        if (role == null) {</b>
+<b class="nc"><i>288</i>&nbsp;            throw new NotFoundException(&quot;Could not find role&quot;);</b>
+<i>289</i>&nbsp;        }
+<b class="nc"><i>290</i>&nbsp;        deleteComposites(roles, role);</b>
+<b class="nc"><i>291</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>292</i>&nbsp;    }</b>
+<i>293</i>&nbsp;
+<i>294</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<html>
+<head>
+    <script src="keycloak.js"></script>
+</head>
+<body>
+
+<div id="not-logged-in" style="display: none;"><a href="#" onclick="keycloak.login()">Login</a> | <a href="#" onclick="keycloak.login({ action: 'register' })">Register</a></div>
+
+<div id="logged-in" style="display: none;">User = <span id="username"></span> (<a href="#" onclick="keycloak.logout()">Logout</a>)</div>
+
+<script>
+    function updateUser() {
+        if (keycloak.authenticated) {
+            keycloak.updateToken().success(function() {
+                saveTokens();
+
+                document.getElementById('logged-in').style.display = 'block';
+                document.getElementById('not-logged-in').style.display = 'none';
+                document.getElementById('username').innerHTML = keycloak.tokenParsed['preferred_username'];
+            }).error(function() {
+                console.error("Failed to retrieve token");
+                keycloak.clearToken();
+            });
+        } else {
+            document.getElementById('logged-in').style.display = 'none';
+            document.getElementById('not-logged-in').style.display = 'block';
+            document.getElementById('username').innerHTML = '';
+        }
+    }
+
+    function saveTokens() {
+        if (keycloak.authenticated) {
+            var tokens = { token: keycloak.token, refreshToken: keycloak.refreshToken };
+            if (localStorage) {
+                localStorage.token = JSON.stringify(tokens);
+            } else {
+                document.cookie = 'token=' + btoa(JSON.stringify(tokens));
+            }
+        } else {
+            if (localStorage) {
+                delete localStorage.token;
+            } else {
+                document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            }
+        }
+    }
+
+    function loadTokens() {
+        if (localStorage) {
+            if (localStorage.token) {
+                return JSON.parse(localStorage.token);
+            }
+        } else {
+            var name = 'token=';
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+
+                if (c.indexOf(name) == 0) {
+                    return JSON.parse(atob(c.substring(name.length, c.length)));
+                }
+            }
+        }
+    }
+
+    var keycloak = new Keycloak();
+    var tokens = loadTokens();
+    var init = { onLoad: 'check-sso', checkLoginIframeInterval: 10 };
+    if (tokens) {
+        init.token = tokens.token;
+        init.refreshToken = tokens.refreshToken;
+    }
+
+    keycloak.onAuthLogout = updateUser;
+
+    keycloak.init(init).success(function (authenticated) {
+        updateUser(authenticated);
+        saveTokens();
+    }).error(function () {
+        updateUser();
+    });
+
+
+</script>
+</body>
+</html>

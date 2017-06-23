@@ -1,0 +1,225 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: ClientTemplatesResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: ClientTemplatesResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ClientTemplatesResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/ 5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    82.4%
+  </span>
+  <span class="absValue">
+    (28/ 34)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>22</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>23</i>&nbsp;import org.keycloak.models.ClientTemplateModel;
+<i>24</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>25</i>&nbsp;import org.keycloak.models.ModelDuplicateException;
+<i>26</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>27</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>28</i>&nbsp;import org.keycloak.models.utils.RepresentationToModel;
+<i>29</i>&nbsp;import org.keycloak.representations.idm.ClientTemplateRepresentation;
+<i>30</i>&nbsp;import org.keycloak.services.ErrorResponse;
+<i>31</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>32</i>&nbsp;
+<i>33</i>&nbsp;import javax.ws.rs.Consumes;
+<i>34</i>&nbsp;import javax.ws.rs.GET;
+<i>35</i>&nbsp;import javax.ws.rs.POST;
+<i>36</i>&nbsp;import javax.ws.rs.Path;
+<i>37</i>&nbsp;import javax.ws.rs.PathParam;
+<i>38</i>&nbsp;import javax.ws.rs.Produces;
+<i>39</i>&nbsp;import javax.ws.rs.core.Context;
+<i>40</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>41</i>&nbsp;import javax.ws.rs.core.Response;
+<i>42</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>43</i>&nbsp;import java.util.ArrayList;
+<i>44</i>&nbsp;import java.util.List;
+<i>45</i>&nbsp;
+<i>46</i>&nbsp;/**
+<i>47</i>&nbsp; * Base resource class for managing a realm&#39;s client templates.
+<i>48</i>&nbsp; *
+<i>49</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>50</i>&nbsp; * @version $Revision: 1 $
+<i>51</i>&nbsp; */
+<i>52</i>&nbsp;public class ClientTemplatesResource {
+<b class="fc"><i>53</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>54</i>&nbsp;    protected RealmModel realm;
+<i>55</i>&nbsp;    private RealmAuth auth;
+<i>56</i>&nbsp;    private AdminEventBuilder adminEvent;
+<i>57</i>&nbsp;
+<i>58</i>&nbsp;    @Context
+<i>59</i>&nbsp;    protected KeycloakSession session;
+<i>60</i>&nbsp;
+<b class="fc"><i>61</i>&nbsp;    public ClientTemplatesResource(RealmModel realm, RealmAuth auth, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>62</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>63</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>64</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<i>65</i>&nbsp;
+<b class="fc"><i>66</i>&nbsp;        auth.init(RealmAuth.Resource.CLIENT);</b>
+<b class="fc"><i>67</i>&nbsp;    }</b>
+<i>68</i>&nbsp;
+<i>69</i>&nbsp;    /**
+<i>70</i>&nbsp;     * Get client templates belonging to the realm
+<i>71</i>&nbsp;     *
+<i>72</i>&nbsp;     * Returns a list of client templates belonging to the realm
+<i>73</i>&nbsp;     */
+<i>74</i>&nbsp;    @GET
+<i>75</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>76</i>&nbsp;    @NoCache
+<i>77</i>&nbsp;    public List&lt;ClientTemplateRepresentation&gt; getClientTemplates() {
+<b class="fc"><i>78</i>&nbsp;        auth.requireView();</b>
+<i>79</i>&nbsp;
+<b class="fc"><i>80</i>&nbsp;        List&lt;ClientTemplateRepresentation&gt; rep = new ArrayList&lt;&gt;();</b>
+<b class="fc"><i>81</i>&nbsp;        List&lt;ClientTemplateModel&gt; clientModels = realm.getClientTemplates();</b>
+<i>82</i>&nbsp;
+<b class="fc"><i>83</i>&nbsp;        boolean view = auth.hasView();</b>
+<b class="fc"><i>84</i>&nbsp;        for (ClientTemplateModel clientModel : clientModels) {</b>
+<b class="fc"><i>85</i>&nbsp;            if (view) {</b>
+<b class="fc"><i>86</i>&nbsp;                rep.add(ModelToRepresentation.toRepresentation(clientModel));</b>
+<i>87</i>&nbsp;            } else {
+<b class="nc"><i>88</i>&nbsp;                ClientTemplateRepresentation client = new ClientTemplateRepresentation();</b>
+<b class="nc"><i>89</i>&nbsp;                client.setId(clientModel.getId());</b>
+<b class="nc"><i>90</i>&nbsp;                client.setName(clientModel.getName());</b>
+<b class="nc"><i>91</i>&nbsp;                client.setDescription(clientModel.getDescription());</b>
+<b class="nc"><i>92</i>&nbsp;                client.setProtocol(clientModel.getProtocol());</b>
+<b class="nc"><i>93</i>&nbsp;                rep.add(client);</b>
+<i>94</i>&nbsp;            }
+<b class="fc"><i>95</i>&nbsp;        }</b>
+<b class="fc"><i>96</i>&nbsp;        return rep;</b>
+<i>97</i>&nbsp;    }
+<i>98</i>&nbsp;
+<i>99</i>&nbsp;    /**
+<i>100</i>&nbsp;     * Create a new client template
+<i>101</i>&nbsp;     *
+<i>102</i>&nbsp;     * Client Template&#39;s name must be unique!
+<i>103</i>&nbsp;     *
+<i>104</i>&nbsp;     * @param uriInfo
+<i>105</i>&nbsp;     * @param rep
+<i>106</i>&nbsp;     * @return
+<i>107</i>&nbsp;     */
+<i>108</i>&nbsp;    @POST
+<i>109</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>110</i>&nbsp;    public Response createClientTemplate(final @Context UriInfo uriInfo, final ClientTemplateRepresentation rep) {
+<b class="fc"><i>111</i>&nbsp;        auth.requireManage();</b>
+<i>112</i>&nbsp;
+<i>113</i>&nbsp;        try {
+<b class="fc"><i>114</i>&nbsp;            ClientTemplateModel clientModel = RepresentationToModel.createClientTemplate(session, realm, rep);</b>
+<i>115</i>&nbsp;
+<b class="fc"><i>116</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo, clientModel.getId()).representation(rep).success();</b>
+<i>117</i>&nbsp;
+<b class="fc"><i>118</i>&nbsp;            return Response.created(uriInfo.getAbsolutePathBuilder().path(clientModel.getId()).build()).build();</b>
+<b class="fc"><i>119</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="fc"><i>120</i>&nbsp;            return ErrorResponse.exists(&quot;Client Template &quot; + rep.getName() + &quot; already exists&quot;);</b>
+<i>121</i>&nbsp;        }
+<i>122</i>&nbsp;    }
+<i>123</i>&nbsp;
+<i>124</i>&nbsp;    /**
+<i>125</i>&nbsp;     * Base path for managing a specific client template.
+<i>126</i>&nbsp;     *
+<i>127</i>&nbsp;     * @param id id of client template (not name)
+<i>128</i>&nbsp;     * @return
+<i>129</i>&nbsp;     */
+<i>130</i>&nbsp;    @Path(&quot;{id}&quot;)
+<i>131</i>&nbsp;    public ClientTemplateResource getClient(final @PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>132</i>&nbsp;        ClientTemplateModel clientModel = realm.getClientTemplateById(id);</b>
+<b class="fc"><i>133</i>&nbsp;        if (clientModel == null) {</b>
+<b class="fc"><i>134</i>&nbsp;            throw new NotFoundException(&quot;Could not find client template&quot;);</b>
+<i>135</i>&nbsp;        }
+<i>136</i>&nbsp;
+<b class="fc"><i>137</i>&nbsp;        ClientTemplateResource clientResource = new ClientTemplateResource(realm, auth, clientModel, session, adminEvent);</b>
+<b class="fc"><i>138</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(clientResource);</b>
+<b class="fc"><i>139</i>&nbsp;        return clientResource;</b>
+<i>140</i>&nbsp;    }
+<i>141</i>&nbsp;
+<i>142</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

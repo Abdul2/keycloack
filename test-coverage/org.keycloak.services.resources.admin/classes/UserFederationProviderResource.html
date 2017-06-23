@@ -1,0 +1,503 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: UserFederationProviderResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: UserFederationProviderResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserFederationProviderResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 117)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">UserFederationProviderResource$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 9)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/ 126)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import java.text.MessageFormat;
+<i>20</i>&nbsp;import java.util.Collections;
+<i>21</i>&nbsp;import java.util.Comparator;
+<i>22</i>&nbsp;import java.util.HashMap;
+<i>23</i>&nbsp;import java.util.LinkedList;
+<i>24</i>&nbsp;import java.util.List;
+<i>25</i>&nbsp;import java.util.Map;
+<i>26</i>&nbsp;import java.util.Properties;
+<i>27</i>&nbsp;
+<i>28</i>&nbsp;import javax.ws.rs.Consumes;
+<i>29</i>&nbsp;import javax.ws.rs.DELETE;
+<i>30</i>&nbsp;import javax.ws.rs.GET;
+<i>31</i>&nbsp;import javax.ws.rs.POST;
+<i>32</i>&nbsp;import javax.ws.rs.PUT;
+<i>33</i>&nbsp;import javax.ws.rs.Path;
+<i>34</i>&nbsp;import javax.ws.rs.PathParam;
+<i>35</i>&nbsp;import javax.ws.rs.Produces;
+<i>36</i>&nbsp;import javax.ws.rs.QueryParam;
+<i>37</i>&nbsp;import javax.ws.rs.core.Context;
+<i>38</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>39</i>&nbsp;import javax.ws.rs.core.Response;
+<i>40</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>41</i>&nbsp;
+<i>42</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>43</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>44</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>45</i>&nbsp;import org.keycloak.mappers.FederationConfigValidationException;
+<i>46</i>&nbsp;import org.keycloak.mappers.UserFederationMapper;
+<i>47</i>&nbsp;import org.keycloak.mappers.UserFederationMapperFactory;
+<i>48</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>49</i>&nbsp;import org.keycloak.models.KeycloakSessionFactory;
+<i>50</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>51</i>&nbsp;import org.keycloak.models.UserFederationMapperModel;
+<i>52</i>&nbsp;import org.keycloak.models.UserFederationProvider;
+<i>53</i>&nbsp;import org.keycloak.models.UserFederationProviderFactory;
+<i>54</i>&nbsp;import org.keycloak.models.UserFederationProviderModel;
+<i>55</i>&nbsp;import org.keycloak.models.UserFederationSyncResult;
+<i>56</i>&nbsp;import org.keycloak.models.utils.KeycloakModelUtils;
+<i>57</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>58</i>&nbsp;import org.keycloak.models.utils.RepresentationToModel;
+<i>59</i>&nbsp;import org.keycloak.provider.ProviderConfigProperty;
+<i>60</i>&nbsp;import org.keycloak.provider.ProviderFactory;
+<i>61</i>&nbsp;import org.keycloak.representations.idm.ConfigPropertyRepresentation;
+<i>62</i>&nbsp;import org.keycloak.representations.idm.UserFederationMapperRepresentation;
+<i>63</i>&nbsp;import org.keycloak.representations.idm.UserFederationMapperTypeRepresentation;
+<i>64</i>&nbsp;import org.keycloak.representations.idm.UserFederationProviderRepresentation;
+<i>65</i>&nbsp;import org.keycloak.services.ErrorResponseException;
+<i>66</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>67</i>&nbsp;import org.keycloak.services.managers.UsersSyncManager;
+<i>68</i>&nbsp;
+<i>69</i>&nbsp;/**
+<i>70</i>&nbsp; * @author &lt;a href=&quot;mailto:mposolda@redhat.com&quot;&gt;Marek Posolda&lt;/a&gt;
+<i>71</i>&nbsp; */
+<b class="nc"><i>72</i>&nbsp;public class UserFederationProviderResource {</b>
+<i>73</i>&nbsp;
+<b class="nc"><i>74</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>75</i>&nbsp;
+<i>76</i>&nbsp;    private final KeycloakSession session;
+<i>77</i>&nbsp;    private final RealmModel realm;
+<i>78</i>&nbsp;    private final RealmAuth auth;
+<i>79</i>&nbsp;    private final UserFederationProviderModel federationProviderModel;
+<i>80</i>&nbsp;    private final AdminEventBuilder adminEvent;
+<i>81</i>&nbsp;
+<i>82</i>&nbsp;    @Context
+<i>83</i>&nbsp;    private UriInfo uriInfo;
+<i>84</i>&nbsp;
+<b class="nc"><i>85</i>&nbsp;    public UserFederationProviderResource(KeycloakSession session, RealmModel realm, RealmAuth auth, UserFederationProviderModel federationProviderModel, AdminEventBuilder adminEvent) {</b>
+<b class="nc"><i>86</i>&nbsp;        this.session = session;</b>
+<b class="nc"><i>87</i>&nbsp;        this.realm = realm;</b>
+<b class="nc"><i>88</i>&nbsp;        this.auth = auth;</b>
+<b class="nc"><i>89</i>&nbsp;        this.federationProviderModel = federationProviderModel;</b>
+<b class="nc"><i>90</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<i>91</i>&nbsp;    }
+<i>92</i>&nbsp;
+<i>93</i>&nbsp;    /**
+<i>94</i>&nbsp;     * Update a provider
+<i>95</i>&nbsp;     *
+<i>96</i>&nbsp;     * @param rep
+<i>97</i>&nbsp;     */
+<i>98</i>&nbsp;    @PUT
+<i>99</i>&nbsp;    @NoCache
+<i>100</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>101</i>&nbsp;    public void updateProviderInstance(UserFederationProviderRepresentation rep) {
+<b class="nc"><i>102</i>&nbsp;        auth.requireManage();</b>
+<i>103</i>&nbsp;
+<b class="nc"><i>104</i>&nbsp;        String displayName = rep.getDisplayName();</b>
+<b class="nc"><i>105</i>&nbsp;        if (displayName != null &amp;&amp; displayName.trim().equals(&quot;&quot;)) {</b>
+<b class="nc"><i>106</i>&nbsp;            displayName = null;</b>
+<i>107</i>&nbsp;        }
+<b class="nc"><i>108</i>&nbsp;        UserFederationProviderModel model = new UserFederationProviderModel(rep.getId(), rep.getProviderName(), rep.getConfig(), rep.getPriority(), displayName,</b>
+<b class="nc"><i>109</i>&nbsp;                rep.getFullSyncPeriod(), rep.getChangedSyncPeriod(), rep.getLastSync());</b>
+<i>110</i>&nbsp;
+<b class="nc"><i>111</i>&nbsp;        UserFederationProvidersResource.validateFederationProviderConfig(session, auth, realm, model);</b>
+<i>112</i>&nbsp;
+<b class="nc"><i>113</i>&nbsp;        realm.updateUserFederationProvider(model);</b>
+<b class="nc"><i>114</i>&nbsp;        new UsersSyncManager().notifyToRefreshPeriodicSync(session, realm, model, false);</b>
+<b class="nc"><i>115</i>&nbsp;        boolean kerberosCredsAdded = UserFederationProvidersResource.checkKerberosCredential(session, realm, model);</b>
+<b class="nc"><i>116</i>&nbsp;        if (kerberosCredsAdded) {</b>
+<b class="nc"><i>117</i>&nbsp;            logger.addedKerberosToRealmCredentials();</b>
+<i>118</i>&nbsp;        }
+<i>119</i>&nbsp;
+<b class="nc"><i>120</i>&nbsp;        adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>121</i>&nbsp;
+<i>122</i>&nbsp;    }
+<i>123</i>&nbsp;
+<i>124</i>&nbsp;    /**
+<i>125</i>&nbsp;     * Get a provider
+<i>126</i>&nbsp;     *
+<i>127</i>&nbsp;     */
+<i>128</i>&nbsp;    @GET
+<i>129</i>&nbsp;    @NoCache
+<i>130</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>131</i>&nbsp;    public UserFederationProviderRepresentation getProviderInstance() {
+<b class="nc"><i>132</i>&nbsp;        auth.requireView();</b>
+<i>133</i>&nbsp;
+<b class="nc"><i>134</i>&nbsp;        return ModelToRepresentation.toRepresentation(this.federationProviderModel);</b>
+<i>135</i>&nbsp;    }
+<i>136</i>&nbsp;
+<i>137</i>&nbsp;    /**
+<i>138</i>&nbsp;     * Delete a provider
+<i>139</i>&nbsp;     *
+<i>140</i>&nbsp;     */
+<i>141</i>&nbsp;    @DELETE
+<i>142</i>&nbsp;    @NoCache
+<i>143</i>&nbsp;    public void deleteProviderInstance() {
+<b class="nc"><i>144</i>&nbsp;        auth.requireManage();</b>
+<i>145</i>&nbsp;
+<b class="nc"><i>146</i>&nbsp;        realm.removeUserFederationProvider(this.federationProviderModel);</b>
+<b class="nc"><i>147</i>&nbsp;        new UsersSyncManager().notifyToRefreshPeriodicSync(session, realm, this.federationProviderModel, true);</b>
+<i>148</i>&nbsp;
+<b class="nc"><i>149</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<i>150</i>&nbsp;
+<i>151</i>&nbsp;    }
+<i>152</i>&nbsp;
+<i>153</i>&nbsp;    /**
+<i>154</i>&nbsp;     * Trigger sync of users
+<i>155</i>&nbsp;     *
+<i>156</i>&nbsp;     * @return
+<i>157</i>&nbsp;     */
+<i>158</i>&nbsp;    @POST
+<i>159</i>&nbsp;    @Path(&quot;sync&quot;)
+<i>160</i>&nbsp;    @NoCache
+<i>161</i>&nbsp;    public UserFederationSyncResult syncUsers(@QueryParam(&quot;action&quot;) String action) {
+<b class="nc"><i>162</i>&nbsp;        auth.requireManage();</b>
+<i>163</i>&nbsp;
+<b class="nc"><i>164</i>&nbsp;        logger.debug(&quot;Syncing users&quot;);</b>
+<i>165</i>&nbsp;
+<b class="nc"><i>166</i>&nbsp;        UsersSyncManager syncManager = new UsersSyncManager();</b>
+<i>167</i>&nbsp;        UserFederationSyncResult syncResult;
+<b class="nc"><i>168</i>&nbsp;        if (&quot;triggerFullSync&quot;.equals(action)) {</b>
+<b class="nc"><i>169</i>&nbsp;            syncResult = syncManager.syncAllUsers(session.getKeycloakSessionFactory(), realm.getId(), this.federationProviderModel);</b>
+<b class="nc"><i>170</i>&nbsp;        } else if (&quot;triggerChangedUsersSync&quot;.equals(action)) {</b>
+<b class="nc"><i>171</i>&nbsp;            syncResult = syncManager.syncChangedUsers(session.getKeycloakSessionFactory(), realm.getId(), this.federationProviderModel);</b>
+<i>172</i>&nbsp;        } else {
+<b class="nc"><i>173</i>&nbsp;            throw new NotFoundException(&quot;Unknown action: &quot; + action);</b>
+<i>174</i>&nbsp;        }
+<i>175</i>&nbsp;
+<b class="nc"><i>176</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>177</i>&nbsp;        return syncResult;</b>
+<i>178</i>&nbsp;    }
+<i>179</i>&nbsp;
+<i>180</i>&nbsp;    /**
+<i>181</i>&nbsp;     * Get available user federation mapper types
+<i>182</i>&nbsp;     *
+<i>183</i>&nbsp;     * @return
+<i>184</i>&nbsp;     */
+<i>185</i>&nbsp;    @GET
+<i>186</i>&nbsp;    @Path(&quot;mapper-types&quot;)
+<i>187</i>&nbsp;    @NoCache
+<i>188</i>&nbsp;    public Map&lt;String, UserFederationMapperTypeRepresentation&gt; getMapperTypes() {
+<b class="nc"><i>189</i>&nbsp;        auth.requireView();</b>
+<i>190</i>&nbsp;
+<b class="nc"><i>191</i>&nbsp;        KeycloakSessionFactory sessionFactory = session.getKeycloakSessionFactory();</b>
+<b class="nc"><i>192</i>&nbsp;        Map&lt;String, UserFederationMapperTypeRepresentation&gt; types = new HashMap&lt;&gt;();</b>
+<b class="nc"><i>193</i>&nbsp;        List&lt;ProviderFactory&gt; factories = sessionFactory.getProviderFactories(UserFederationMapper.class);</b>
+<i>194</i>&nbsp;
+<b class="nc"><i>195</i>&nbsp;        for (ProviderFactory factory : factories) {</b>
+<b class="nc"><i>196</i>&nbsp;            UserFederationMapperFactory mapperFactory = (UserFederationMapperFactory)factory;</b>
+<b class="nc"><i>197</i>&nbsp;            if (mapperFactory.getFederationProviderType().equals(this.federationProviderModel.getProviderName())) {</b>
+<i>198</i>&nbsp;
+<b class="nc"><i>199</i>&nbsp;                UserFederationMapperTypeRepresentation rep = new UserFederationMapperTypeRepresentation();</b>
+<b class="nc"><i>200</i>&nbsp;                rep.setId(mapperFactory.getId());</b>
+<b class="nc"><i>201</i>&nbsp;                rep.setCategory(mapperFactory.getDisplayCategory());</b>
+<b class="nc"><i>202</i>&nbsp;                rep.setName(mapperFactory.getDisplayType());</b>
+<b class="nc"><i>203</i>&nbsp;                rep.setHelpText(mapperFactory.getHelpText());</b>
+<b class="nc"><i>204</i>&nbsp;                rep.setSyncConfig(mapperFactory.getSyncConfig());</b>
+<b class="nc"><i>205</i>&nbsp;                List&lt;ProviderConfigProperty&gt; configProperties = mapperFactory.getConfigProperties();</b>
+<b class="nc"><i>206</i>&nbsp;                for (ProviderConfigProperty prop : configProperties) {</b>
+<b class="nc"><i>207</i>&nbsp;                    ConfigPropertyRepresentation propRep = new ConfigPropertyRepresentation();</b>
+<b class="nc"><i>208</i>&nbsp;                    propRep.setName(prop.getName());</b>
+<b class="nc"><i>209</i>&nbsp;                    propRep.setLabel(prop.getLabel());</b>
+<b class="nc"><i>210</i>&nbsp;                    propRep.setType(prop.getType());</b>
+<b class="nc"><i>211</i>&nbsp;                    propRep.setDefaultValue(prop.getDefaultValue());</b>
+<b class="nc"><i>212</i>&nbsp;                    propRep.setHelpText(prop.getHelpText());</b>
+<b class="nc"><i>213</i>&nbsp;                    rep.getProperties().add(propRep);</b>
+<b class="nc"><i>214</i>&nbsp;                }</b>
+<b class="nc"><i>215</i>&nbsp;                rep.setDefaultConfig(mapperFactory.getDefaultConfig(this.federationProviderModel));</b>
+<i>216</i>&nbsp;
+<b class="nc"><i>217</i>&nbsp;                types.put(rep.getId(), rep);</b>
+<i>218</i>&nbsp;            }
+<b class="nc"><i>219</i>&nbsp;        }</b>
+<b class="nc"><i>220</i>&nbsp;        return types;</b>
+<i>221</i>&nbsp;    }
+<i>222</i>&nbsp;
+<i>223</i>&nbsp;    /**
+<i>224</i>&nbsp;     * Get mappers configured for this provider
+<i>225</i>&nbsp;     *
+<i>226</i>&nbsp;     * @return
+<i>227</i>&nbsp;     */
+<i>228</i>&nbsp;    @GET
+<i>229</i>&nbsp;    @Path(&quot;mappers&quot;)
+<i>230</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>231</i>&nbsp;    @NoCache
+<i>232</i>&nbsp;    public List&lt;UserFederationMapperRepresentation&gt; getMappers() {
+<b class="nc"><i>233</i>&nbsp;        auth.requireView();</b>
+<i>234</i>&nbsp;
+<b class="nc"><i>235</i>&nbsp;        List&lt;UserFederationMapperRepresentation&gt; mappers = new LinkedList&lt;&gt;();</b>
+<b class="nc"><i>236</i>&nbsp;        for (UserFederationMapperModel model : realm.getUserFederationMappersByFederationProvider(this.federationProviderModel.getId())) {</b>
+<b class="nc"><i>237</i>&nbsp;            mappers.add(ModelToRepresentation.toRepresentation(realm, model));</b>
+<b class="nc"><i>238</i>&nbsp;        }</b>
+<i>239</i>&nbsp;
+<i>240</i>&nbsp;        // Sort mappers by category,type,name
+<b class="nc"><i>241</i>&nbsp;        Collections.sort(mappers, new Comparator&lt;UserFederationMapperRepresentation&gt;() {</b>
+<i>242</i>&nbsp;
+<i>243</i>&nbsp;            @Override
+<i>244</i>&nbsp;            public int compare(UserFederationMapperRepresentation o1, UserFederationMapperRepresentation o2) {
+<b class="nc"><i>245</i>&nbsp;                UserFederationMapperFactory factory1 = (UserFederationMapperFactory) session.getKeycloakSessionFactory().getProviderFactory(UserFederationMapper.class, o1.getFederationMapperType());</b>
+<b class="nc"><i>246</i>&nbsp;                UserFederationMapperFactory factory2 = (UserFederationMapperFactory) session.getKeycloakSessionFactory().getProviderFactory(UserFederationMapper.class, o2.getFederationMapperType());</b>
+<i>247</i>&nbsp;
+<b class="nc"><i>248</i>&nbsp;                int compare = factory1.getDisplayCategory().compareTo(factory2.getDisplayCategory());</b>
+<b class="nc"><i>249</i>&nbsp;                if (compare != 0) return compare;</b>
+<i>250</i>&nbsp;
+<b class="nc"><i>251</i>&nbsp;                compare = factory1.getDisplayType().compareTo(factory2.getDisplayType());</b>
+<b class="nc"><i>252</i>&nbsp;                if (compare != 0) return compare;</b>
+<i>253</i>&nbsp;
+<b class="nc"><i>254</i>&nbsp;                compare = o1.getName().compareTo(o2.getName());</b>
+<b class="nc"><i>255</i>&nbsp;                return compare;</b>
+<i>256</i>&nbsp;            }
+<i>257</i>&nbsp;        });
+<i>258</i>&nbsp;
+<b class="nc"><i>259</i>&nbsp;        return mappers;</b>
+<i>260</i>&nbsp;    }
+<i>261</i>&nbsp;
+<i>262</i>&nbsp;    /**
+<i>263</i>&nbsp;     * Create a mapper
+<i>264</i>&nbsp;     *
+<i>265</i>&nbsp;     * @param mapper
+<i>266</i>&nbsp;     * @return
+<i>267</i>&nbsp;     */
+<i>268</i>&nbsp;    @POST
+<i>269</i>&nbsp;    @Path(&quot;mappers&quot;)
+<i>270</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>271</i>&nbsp;    public Response addMapper(UserFederationMapperRepresentation mapper) {
+<b class="nc"><i>272</i>&nbsp;        auth.requireManage();</b>
+<i>273</i>&nbsp;
+<b class="nc"><i>274</i>&nbsp;        UserFederationMapperModel model = RepresentationToModel.toModel(realm, mapper);</b>
+<i>275</i>&nbsp;
+<b class="nc"><i>276</i>&nbsp;        validateModel(model);</b>
+<i>277</i>&nbsp;
+<b class="nc"><i>278</i>&nbsp;        model = realm.addUserFederationMapper(model);</b>
+<i>279</i>&nbsp;
+<b class="nc"><i>280</i>&nbsp;        adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo, model.getId())</b>
+<b class="nc"><i>281</i>&nbsp;                .representation(mapper).success();</b>
+<i>282</i>&nbsp;
+<b class="nc"><i>283</i>&nbsp;        return Response.created(uriInfo.getAbsolutePathBuilder().path(model.getId()).build()).build();</b>
+<i>284</i>&nbsp;
+<i>285</i>&nbsp;    }
+<i>286</i>&nbsp;
+<i>287</i>&nbsp;    /**
+<i>288</i>&nbsp;     * Get a mapper
+<i>289</i>&nbsp;     *
+<i>290</i>&nbsp;     * @param id Mapper id
+<i>291</i>&nbsp;     * @return
+<i>292</i>&nbsp;     */
+<i>293</i>&nbsp;    @GET
+<i>294</i>&nbsp;    @NoCache
+<i>295</i>&nbsp;    @Path(&quot;mappers/{id}&quot;)
+<i>296</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>297</i>&nbsp;    public UserFederationMapperRepresentation getMapperById(@PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>298</i>&nbsp;        auth.requireView();</b>
+<i>299</i>&nbsp;
+<b class="nc"><i>300</i>&nbsp;        UserFederationMapperModel model = realm.getUserFederationMapperById(id);</b>
+<b class="nc"><i>301</i>&nbsp;        if (model == null) throw new NotFoundException(&quot;Model not found&quot;);</b>
+<b class="nc"><i>302</i>&nbsp;        return ModelToRepresentation.toRepresentation(realm, model);</b>
+<i>303</i>&nbsp;    }
+<i>304</i>&nbsp;
+<i>305</i>&nbsp;    /**
+<i>306</i>&nbsp;     * Update a mapper
+<i>307</i>&nbsp;     *
+<i>308</i>&nbsp;     * @param id Mapper id
+<i>309</i>&nbsp;     * @param rep
+<i>310</i>&nbsp;     */
+<i>311</i>&nbsp;    @PUT
+<i>312</i>&nbsp;    @NoCache
+<i>313</i>&nbsp;    @Path(&quot;mappers/{id}&quot;)
+<i>314</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>315</i>&nbsp;    public void update(@PathParam(&quot;id&quot;) String id, UserFederationMapperRepresentation rep) {
+<b class="nc"><i>316</i>&nbsp;        auth.requireManage();</b>
+<i>317</i>&nbsp;
+<b class="nc"><i>318</i>&nbsp;        UserFederationMapperModel model = realm.getUserFederationMapperById(id);</b>
+<b class="nc"><i>319</i>&nbsp;        if (model == null) throw new NotFoundException(&quot;Model not found&quot;);</b>
+<b class="nc"><i>320</i>&nbsp;        model = RepresentationToModel.toModel(realm, rep);</b>
+<i>321</i>&nbsp;
+<b class="nc"><i>322</i>&nbsp;        validateModel(model);</b>
+<i>323</i>&nbsp;
+<b class="nc"><i>324</i>&nbsp;        realm.updateUserFederationMapper(model);</b>
+<b class="nc"><i>325</i>&nbsp;        adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>326</i>&nbsp;
+<i>327</i>&nbsp;    }
+<i>328</i>&nbsp;
+<i>329</i>&nbsp;    /**
+<i>330</i>&nbsp;     * Delete a mapper with a given id
+<i>331</i>&nbsp;     *
+<i>332</i>&nbsp;     * @param id Mapper id
+<i>333</i>&nbsp;     */
+<i>334</i>&nbsp;    @DELETE
+<i>335</i>&nbsp;    @NoCache
+<i>336</i>&nbsp;    @Path(&quot;mappers/{id}&quot;)
+<i>337</i>&nbsp;    public void delete(@PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>338</i>&nbsp;        auth.requireManage();</b>
+<i>339</i>&nbsp;
+<b class="nc"><i>340</i>&nbsp;        UserFederationMapperModel model = realm.getUserFederationMapperById(id);</b>
+<b class="nc"><i>341</i>&nbsp;        if (model == null) throw new NotFoundException(&quot;Model not found&quot;);</b>
+<b class="nc"><i>342</i>&nbsp;        realm.removeUserFederationMapper(model);</b>
+<b class="nc"><i>343</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<i>344</i>&nbsp;
+<i>345</i>&nbsp;    }
+<i>346</i>&nbsp;
+<i>347</i>&nbsp;    /**
+<i>348</i>&nbsp;     * Trigger sync of mapper data related to federationMapper (roles, groups, ...)
+<i>349</i>&nbsp;     *
+<i>350</i>&nbsp;     * @return
+<i>351</i>&nbsp;     */
+<i>352</i>&nbsp;    @POST
+<i>353</i>&nbsp;    @Path(&quot;mappers/{id}/sync&quot;)
+<i>354</i>&nbsp;    @NoCache
+<i>355</i>&nbsp;    public UserFederationSyncResult syncMapperData(@PathParam(&quot;id&quot;) String mapperId, @QueryParam(&quot;direction&quot;) String direction) {
+<b class="nc"><i>356</i>&nbsp;        auth.requireManage();</b>
+<i>357</i>&nbsp;
+<b class="nc"><i>358</i>&nbsp;        UserFederationMapperModel mapperModel = realm.getUserFederationMapperById(mapperId);</b>
+<b class="nc"><i>359</i>&nbsp;        if (mapperModel == null) throw new NotFoundException(&quot;Mapper model not found&quot;);</b>
+<b class="nc"><i>360</i>&nbsp;        UserFederationMapper mapper = session.getProvider(UserFederationMapper.class, mapperModel.getFederationMapperType());</b>
+<i>361</i>&nbsp;
+<b class="nc"><i>362</i>&nbsp;        UserFederationProviderModel providerModel = KeycloakModelUtils.findUserFederationProviderById(mapperModel.getFederationProviderId(), realm);</b>
+<b class="nc"><i>363</i>&nbsp;        if (providerModel == null) throw new NotFoundException(&quot;Provider model not found&quot;);</b>
+<b class="nc"><i>364</i>&nbsp;        UserFederationProviderFactory providerFactory = (UserFederationProviderFactory) session.getKeycloakSessionFactory().getProviderFactory(UserFederationProvider.class, providerModel.getProviderName());</b>
+<b class="nc"><i>365</i>&nbsp;        UserFederationProvider federationProvider = providerFactory.getInstance(session, providerModel);</b>
+<i>366</i>&nbsp;
+<b class="nc"><i>367</i>&nbsp;        logger.syncingDataForMapper(mapperModel.getName(), mapperModel.getFederationMapperType(), direction);</b>
+<i>368</i>&nbsp;
+<i>369</i>&nbsp;        UserFederationSyncResult syncResult;
+<b class="nc"><i>370</i>&nbsp;        if (&quot;fedToKeycloak&quot;.equals(direction)) {</b>
+<b class="nc"><i>371</i>&nbsp;            syncResult = mapper.syncDataFromFederationProviderToKeycloak(mapperModel, federationProvider, session, realm);</b>
+<b class="nc"><i>372</i>&nbsp;        } else if (&quot;keycloakToFed&quot;.equals(direction)) {</b>
+<b class="nc"><i>373</i>&nbsp;            syncResult = mapper.syncDataFromKeycloakToFederationProvider(mapperModel, federationProvider, session, realm);</b>
+<i>374</i>&nbsp;        } else {
+<b class="nc"><i>375</i>&nbsp;            throw new NotFoundException(&quot;Unknown direction: &quot; + direction);</b>
+<i>376</i>&nbsp;        }
+<i>377</i>&nbsp;
+<b class="nc"><i>378</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>379</i>&nbsp;        return syncResult;</b>
+<i>380</i>&nbsp;    }
+<i>381</i>&nbsp;
+<i>382</i>&nbsp;    private void validateModel(UserFederationMapperModel model) {
+<i>383</i>&nbsp;        try {
+<b class="nc"><i>384</i>&nbsp;            UserFederationMapperFactory mapperFactory = (UserFederationMapperFactory) session.getKeycloakSessionFactory().getProviderFactory(UserFederationMapper.class, model.getFederationMapperType());</b>
+<b class="nc"><i>385</i>&nbsp;            mapperFactory.validateConfig(realm, federationProviderModel, model);</b>
+<b class="nc"><i>386</i>&nbsp;        } catch (FederationConfigValidationException ex) {</b>
+<b class="nc"><i>387</i>&nbsp;            logger.error(ex.getMessage());</b>
+<b class="nc"><i>388</i>&nbsp;            Properties messages = AdminRoot.getMessages(session, realm, auth.getAuth().getToken().getLocale());</b>
+<b class="nc"><i>389</i>&nbsp;            throw new ErrorResponseException(ex.getMessage(), MessageFormat.format(messages.getProperty(ex.getMessage(), ex.getMessage()), ex.getParameters()),</b>
+<i>390</i>&nbsp;                    Response.Status.BAD_REQUEST);
+<b class="nc"><i>391</i>&nbsp;        }</b>
+<i>392</i>&nbsp;    }
+<i>393</i>&nbsp;
+<i>394</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

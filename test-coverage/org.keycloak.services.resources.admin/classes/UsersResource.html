@@ -1,0 +1,1072 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="htmlId">
+<head>
+  <title>Coverage Report :: UsersResource</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+  </style>
+</head>
+
+<body>
+<div class="header"></div>
+
+<div class="content">
+<div class="breadCrumbs">
+    [ <a href="../../index.html">alclasses</a> ]
+    [ <a href="../index.html">org.keycloak.services.resources.admin</a> ]
+</div>
+
+<h1>Coverage Summary for Class: UsersResource (org.keycloak.services.resources.admin)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UsersResource</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/ 1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    69%
+  </span>
+  <span class="absValue">
+    (20/ 29)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    54%
+  </span>
+  <span class="absValue">
+    (202/ 374)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<div class="sourceCode"><i>1</i>&nbsp;/*
+<i>2</i>&nbsp; * Copyright 2016 Red Hat, Inc. and/or its affiliates
+<i>3</i>&nbsp; * and other contributors as indicated by the @author tags.
+<i>4</i>&nbsp; *
+<i>5</i>&nbsp; * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<i>6</i>&nbsp; * you may not use this file except in compliance with the License.
+<i>7</i>&nbsp; * You may obtain a copy of the License at
+<i>8</i>&nbsp; *
+<i>9</i>&nbsp; * http://www.apache.org/licenses/LICENSE-2.0
+<i>10</i>&nbsp; *
+<i>11</i>&nbsp; * Unless required by applicable law or agreed to in writing, software
+<i>12</i>&nbsp; * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<i>13</i>&nbsp; * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<i>14</i>&nbsp; * See the License for the specific language governing permissions and
+<i>15</i>&nbsp; * limitations under the License.
+<i>16</i>&nbsp; */
+<i>17</i>&nbsp;package org.keycloak.services.resources.admin;
+<i>18</i>&nbsp;
+<i>19</i>&nbsp;import org.jboss.resteasy.annotations.cache.NoCache;
+<i>20</i>&nbsp;import org.jboss.resteasy.spi.BadRequestException;
+<i>21</i>&nbsp;import org.jboss.resteasy.spi.NotFoundException;
+<i>22</i>&nbsp;import org.jboss.resteasy.spi.ResteasyProviderFactory;
+<i>23</i>&nbsp;import org.keycloak.common.ClientConnection;
+<i>24</i>&nbsp;import org.keycloak.authentication.RequiredActionProvider;
+<i>25</i>&nbsp;import org.keycloak.email.EmailException;
+<i>26</i>&nbsp;import org.keycloak.email.EmailTemplateProvider;
+<i>27</i>&nbsp;import org.keycloak.events.Details;
+<i>28</i>&nbsp;import org.keycloak.events.EventBuilder;
+<i>29</i>&nbsp;import org.keycloak.events.EventType;
+<i>30</i>&nbsp;import org.keycloak.events.admin.OperationType;
+<i>31</i>&nbsp;import org.keycloak.models.ClientModel;
+<i>32</i>&nbsp;import org.keycloak.models.ClientSessionModel;
+<i>33</i>&nbsp;import org.keycloak.models.Constants;
+<i>34</i>&nbsp;import org.keycloak.models.FederatedIdentityModel;
+<i>35</i>&nbsp;import org.keycloak.models.GroupModel;
+<i>36</i>&nbsp;import org.keycloak.models.IdentityProviderModel;
+<i>37</i>&nbsp;import org.keycloak.models.KeycloakSession;
+<i>38</i>&nbsp;import org.keycloak.models.ModelDuplicateException;
+<i>39</i>&nbsp;import org.keycloak.models.ModelException;
+<i>40</i>&nbsp;import org.keycloak.models.ModelReadOnlyException;
+<i>41</i>&nbsp;import org.keycloak.models.RealmModel;
+<i>42</i>&nbsp;import org.keycloak.models.UserConsentModel;
+<i>43</i>&nbsp;import org.keycloak.models.UserCredentialModel;
+<i>44</i>&nbsp;import org.keycloak.models.UserModel;
+<i>45</i>&nbsp;import org.keycloak.models.UserSessionModel;
+<i>46</i>&nbsp;import org.keycloak.models.utils.ModelToRepresentation;
+<i>47</i>&nbsp;import org.keycloak.models.utils.RepresentationToModel;
+<i>48</i>&nbsp;import org.keycloak.protocol.oidc.OIDCLoginProtocol;
+<i>49</i>&nbsp;import org.keycloak.protocol.oidc.TokenManager;
+<i>50</i>&nbsp;import org.keycloak.protocol.oidc.utils.RedirectUtils;
+<i>51</i>&nbsp;import org.keycloak.provider.ProviderFactory;
+<i>52</i>&nbsp;import org.keycloak.representations.idm.CredentialRepresentation;
+<i>53</i>&nbsp;import org.keycloak.representations.idm.FederatedIdentityRepresentation;
+<i>54</i>&nbsp;import org.keycloak.representations.idm.GroupRepresentation;
+<i>55</i>&nbsp;import org.keycloak.representations.idm.UserConsentRepresentation;
+<i>56</i>&nbsp;import org.keycloak.representations.idm.UserRepresentation;
+<i>57</i>&nbsp;import org.keycloak.representations.idm.UserSessionRepresentation;
+<i>58</i>&nbsp;import org.keycloak.services.ErrorResponseException;
+<i>59</i>&nbsp;import org.keycloak.services.managers.AuthenticationManager;
+<i>60</i>&nbsp;import org.keycloak.services.managers.ClientSessionCode;
+<i>61</i>&nbsp;import org.keycloak.services.managers.UserManager;
+<i>62</i>&nbsp;import org.keycloak.services.ErrorResponse;
+<i>63</i>&nbsp;import org.keycloak.services.ServicesLogger;
+<i>64</i>&nbsp;import org.keycloak.services.Urls;
+<i>65</i>&nbsp;
+<i>66</i>&nbsp;import javax.ws.rs.Consumes;
+<i>67</i>&nbsp;import javax.ws.rs.DELETE;
+<i>68</i>&nbsp;import javax.ws.rs.GET;
+<i>69</i>&nbsp;import javax.ws.rs.POST;
+<i>70</i>&nbsp;import javax.ws.rs.PUT;
+<i>71</i>&nbsp;import javax.ws.rs.Path;
+<i>72</i>&nbsp;import javax.ws.rs.PathParam;
+<i>73</i>&nbsp;import javax.ws.rs.Produces;
+<i>74</i>&nbsp;import javax.ws.rs.QueryParam;
+<i>75</i>&nbsp;import javax.ws.rs.core.Context;
+<i>76</i>&nbsp;import javax.ws.rs.core.HttpHeaders;
+<i>77</i>&nbsp;import javax.ws.rs.core.MediaType;
+<i>78</i>&nbsp;import javax.ws.rs.core.Response;
+<i>79</i>&nbsp;import javax.ws.rs.core.Response.Status;
+<i>80</i>&nbsp;import javax.ws.rs.core.UriBuilder;
+<i>81</i>&nbsp;import javax.ws.rs.core.UriInfo;
+<i>82</i>&nbsp;import javax.ws.rs.WebApplicationException;
+<i>83</i>&nbsp;
+<i>84</i>&nbsp;import java.io.IOException;
+<i>85</i>&nbsp;import java.net.URI;
+<i>86</i>&nbsp;import java.text.MessageFormat;
+<i>87</i>&nbsp;import java.util.ArrayList;
+<i>88</i>&nbsp;import java.util.Collections;
+<i>89</i>&nbsp;import java.util.HashMap;
+<i>90</i>&nbsp;import java.util.HashSet;
+<i>91</i>&nbsp;import java.util.LinkedList;
+<i>92</i>&nbsp;import java.util.List;
+<i>93</i>&nbsp;import java.util.Map;
+<i>94</i>&nbsp;import java.util.Properties;
+<i>95</i>&nbsp;import java.util.Set;
+<i>96</i>&nbsp;import java.util.concurrent.TimeUnit;
+<i>97</i>&nbsp;import org.keycloak.models.UsernameLoginFailureModel;
+<i>98</i>&nbsp;import org.keycloak.services.managers.BruteForceProtector;
+<i>99</i>&nbsp;import org.keycloak.services.managers.UserSessionManager;
+<i>100</i>&nbsp;import org.keycloak.services.resources.AccountService;
+<i>101</i>&nbsp;import org.keycloak.common.util.Time;
+<i>102</i>&nbsp;import org.keycloak.services.validation.Validation;
+<i>103</i>&nbsp;import org.keycloak.theme.Theme;
+<i>104</i>&nbsp;import org.keycloak.theme.Theme.Type;
+<i>105</i>&nbsp;import org.keycloak.theme.ThemeProvider;
+<i>106</i>&nbsp;
+<i>107</i>&nbsp;/**
+<i>108</i>&nbsp; * Base resource for managing users
+<i>109</i>&nbsp; *
+<i>110</i>&nbsp; * @author &lt;a href=&quot;mailto:bill@burkecentral.com&quot;&gt;Bill Burke&lt;/a&gt;
+<i>111</i>&nbsp; * @version $Revision: 1 $
+<i>112</i>&nbsp; */
+<i>113</i>&nbsp;public class UsersResource {
+<b class="fc"><i>114</i>&nbsp;    protected static final ServicesLogger logger = ServicesLogger.ROOT_LOGGER;</b>
+<i>115</i>&nbsp;
+<i>116</i>&nbsp;    protected RealmModel realm;
+<i>117</i>&nbsp;
+<i>118</i>&nbsp;    private RealmAuth auth;
+<i>119</i>&nbsp;
+<i>120</i>&nbsp;    private AdminEventBuilder adminEvent;
+<i>121</i>&nbsp;
+<i>122</i>&nbsp;    @Context
+<i>123</i>&nbsp;    protected ClientConnection clientConnection;
+<i>124</i>&nbsp;
+<i>125</i>&nbsp;    @Context
+<i>126</i>&nbsp;    protected UriInfo uriInfo;
+<i>127</i>&nbsp;
+<i>128</i>&nbsp;    @Context
+<i>129</i>&nbsp;    protected KeycloakSession session;
+<i>130</i>&nbsp;
+<i>131</i>&nbsp;    @Context
+<i>132</i>&nbsp;    protected HttpHeaders headers;
+<i>133</i>&nbsp;
+<b class="fc"><i>134</i>&nbsp;    public UsersResource(RealmModel realm, RealmAuth auth, TokenManager tokenManager, AdminEventBuilder adminEvent) {</b>
+<b class="fc"><i>135</i>&nbsp;        this.auth = auth;</b>
+<b class="fc"><i>136</i>&nbsp;        this.realm = realm;</b>
+<b class="fc"><i>137</i>&nbsp;        this.adminEvent = adminEvent;</b>
+<i>138</i>&nbsp;
+<b class="fc"><i>139</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<b class="fc"><i>140</i>&nbsp;    }</b>
+<i>141</i>&nbsp;
+<i>142</i>&nbsp;    /**
+<i>143</i>&nbsp;     * Update the user
+<i>144</i>&nbsp;     *
+<i>145</i>&nbsp;     * @param id User id
+<i>146</i>&nbsp;     * @param rep
+<i>147</i>&nbsp;     * @return
+<i>148</i>&nbsp;     */
+<i>149</i>&nbsp;    @Path(&quot;{id}&quot;)
+<i>150</i>&nbsp;    @PUT
+<i>151</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>152</i>&nbsp;    public Response updateUser(final @PathParam(&quot;id&quot;) String id, final UserRepresentation rep) {
+<b class="fc"><i>153</i>&nbsp;        auth.requireManage();</b>
+<i>154</i>&nbsp;
+<i>155</i>&nbsp;        try {
+<b class="fc"><i>156</i>&nbsp;            UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>157</i>&nbsp;            if (user == null) {</b>
+<b class="nc"><i>158</i>&nbsp;                throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>159</i>&nbsp;            }
+<i>160</i>&nbsp;
+<i>161</i>&nbsp;             Set&lt;String&gt; attrsToRemove;
+<b class="fc"><i>162</i>&nbsp;            if (rep.getAttributes() != null) {</b>
+<b class="fc"><i>163</i>&nbsp;                attrsToRemove = new HashSet&lt;&gt;(user.getAttributes().keySet());</b>
+<b class="fc"><i>164</i>&nbsp;                attrsToRemove.removeAll(rep.getAttributes().keySet());</b>
+<i>165</i>&nbsp;            } else {
+<b class="fc"><i>166</i>&nbsp;                attrsToRemove = Collections.emptySet();</b>
+<i>167</i>&nbsp;            }
+<i>168</i>&nbsp;
+<b class="fc"><i>169</i>&nbsp;            if (rep.isEnabled() != null &amp;&amp; rep.isEnabled() &amp;&amp; rep.getUsername() != null) {</b>
+<b class="fc"><i>170</i>&nbsp;                UsernameLoginFailureModel failureModel = session.sessions().getUserLoginFailure(realm, rep.getUsername().toLowerCase());</b>
+<b class="fc"><i>171</i>&nbsp;                if (failureModel != null) {</b>
+<b class="nc"><i>172</i>&nbsp;                    failureModel.clearFailures();</b>
+<i>173</i>&nbsp;                }
+<i>174</i>&nbsp;            }
+<i>175</i>&nbsp;
+<b class="fc"><i>176</i>&nbsp;            updateUserFromRep(user, rep, attrsToRemove, realm, session, true);</b>
+<b class="fc"><i>177</i>&nbsp;            adminEvent.operation(OperationType.UPDATE).resourcePath(uriInfo).representation(rep).success();</b>
+<i>178</i>&nbsp;
+<b class="fc"><i>179</i>&nbsp;            if (session.getTransaction().isActive()) {</b>
+<b class="fc"><i>180</i>&nbsp;                session.getTransaction().commit();</b>
+<i>181</i>&nbsp;            }
+<b class="fc"><i>182</i>&nbsp;            return Response.noContent().build();</b>
+<b class="fc"><i>183</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="fc"><i>184</i>&nbsp;            return ErrorResponse.exists(&quot;User exists with same username or email&quot;);</b>
+<b class="nc"><i>185</i>&nbsp;        } catch (ModelReadOnlyException re) {</b>
+<b class="nc"><i>186</i>&nbsp;            return ErrorResponse.exists(&quot;User is read only!&quot;);</b>
+<i>187</i>&nbsp;        }
+<i>188</i>&nbsp;    }
+<i>189</i>&nbsp;
+<i>190</i>&nbsp;    /**
+<i>191</i>&nbsp;     * Create a new user
+<i>192</i>&nbsp;     *
+<i>193</i>&nbsp;     * Username must be unique.
+<i>194</i>&nbsp;     *
+<i>195</i>&nbsp;     * @param uriInfo
+<i>196</i>&nbsp;     * @param rep
+<i>197</i>&nbsp;     * @return
+<i>198</i>&nbsp;     */
+<i>199</i>&nbsp;    @POST
+<i>200</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>201</i>&nbsp;    public Response createUser(final @Context UriInfo uriInfo, final UserRepresentation rep) {
+<b class="fc"><i>202</i>&nbsp;        auth.requireManage();</b>
+<i>203</i>&nbsp;
+<i>204</i>&nbsp;        // Double-check duplicated username and email here due to federation
+<b class="fc"><i>205</i>&nbsp;        if (session.users().getUserByUsername(rep.getUsername(), realm) != null) {</b>
+<b class="fc"><i>206</i>&nbsp;            return ErrorResponse.exists(&quot;User exists with same username&quot;);</b>
+<i>207</i>&nbsp;        }
+<b class="fc"><i>208</i>&nbsp;        if (rep.getEmail() != null &amp;&amp; session.users().getUserByEmail(rep.getEmail(), realm) != null) {</b>
+<b class="fc"><i>209</i>&nbsp;            return ErrorResponse.exists(&quot;User exists with same email&quot;);</b>
+<i>210</i>&nbsp;        }
+<i>211</i>&nbsp;
+<i>212</i>&nbsp;        try {
+<b class="fc"><i>213</i>&nbsp;            UserModel user = session.users().addUser(realm, rep.getUsername());</b>
+<b class="fc"><i>214</i>&nbsp;            Set&lt;String&gt; emptySet = Collections.emptySet();</b>
+<b class="fc"><i>215</i>&nbsp;            updateUserFromRep(user, rep, emptySet, realm, session, false);</b>
+<i>216</i>&nbsp;
+<b class="fc"><i>217</i>&nbsp;            adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo, user.getId()).representation(rep).success();</b>
+<i>218</i>&nbsp;
+<b class="fc"><i>219</i>&nbsp;            if (session.getTransaction().isActive()) {</b>
+<b class="fc"><i>220</i>&nbsp;                session.getTransaction().commit();</b>
+<i>221</i>&nbsp;            }
+<i>222</i>&nbsp;
+<b class="fc"><i>223</i>&nbsp;            return Response.created(uriInfo.getAbsolutePathBuilder().path(user.getId()).build()).build();</b>
+<b class="nc"><i>224</i>&nbsp;        } catch (ModelDuplicateException e) {</b>
+<b class="nc"><i>225</i>&nbsp;            if (session.getTransaction().isActive()) {</b>
+<b class="nc"><i>226</i>&nbsp;                session.getTransaction().setRollbackOnly();</b>
+<i>227</i>&nbsp;            }
+<b class="nc"><i>228</i>&nbsp;            return ErrorResponse.exists(&quot;User exists with same username or email&quot;);</b>
+<i>229</i>&nbsp;        }
+<i>230</i>&nbsp;    }
+<i>231</i>&nbsp;
+<i>232</i>&nbsp;    public static void updateUserFromRep(UserModel user, UserRepresentation rep, Set&lt;String&gt; attrsToRemove, RealmModel realm, KeycloakSession session, boolean removeMissingRequiredActions) {
+<b class="fc"><i>233</i>&nbsp;        if (rep.getUsername() != null &amp;&amp; realm.isEditUsernameAllowed()) {</b>
+<b class="fc"><i>234</i>&nbsp;            user.setUsername(rep.getUsername());</b>
+<i>235</i>&nbsp;        }
+<b class="fc"><i>236</i>&nbsp;        if (rep.getEmail() != null) user.setEmail(rep.getEmail());</b>
+<b class="fc"><i>237</i>&nbsp;        if (rep.getFirstName() != null) user.setFirstName(rep.getFirstName());</b>
+<b class="fc"><i>238</i>&nbsp;        if (rep.getLastName() != null) user.setLastName(rep.getLastName());</b>
+<i>239</i>&nbsp;
+<b class="fc"><i>240</i>&nbsp;        if (rep.isEnabled() != null) user.setEnabled(rep.isEnabled());</b>
+<b class="fc"><i>241</i>&nbsp;        if (rep.isTotp() != null) user.setOtpEnabled(rep.isTotp());</b>
+<b class="fc"><i>242</i>&nbsp;        if (rep.isEmailVerified() != null) user.setEmailVerified(rep.isEmailVerified());</b>
+<i>243</i>&nbsp;
+<b class="fc"><i>244</i>&nbsp;        List&lt;String&gt; reqActions = rep.getRequiredActions();</b>
+<i>245</i>&nbsp;
+<b class="fc"><i>246</i>&nbsp;        if (reqActions != null) {</b>
+<b class="fc"><i>247</i>&nbsp;            Set&lt;String&gt; allActions = new HashSet&lt;&gt;();</b>
+<b class="fc"><i>248</i>&nbsp;            for (ProviderFactory factory : session.getKeycloakSessionFactory().getProviderFactories(RequiredActionProvider.class)) {</b>
+<b class="fc"><i>249</i>&nbsp;                allActions.add(factory.getId());</b>
+<b class="fc"><i>250</i>&nbsp;            }</b>
+<b class="fc"><i>251</i>&nbsp;            for (String action : allActions) {</b>
+<b class="fc"><i>252</i>&nbsp;                if (reqActions.contains(action)) {</b>
+<b class="fc"><i>253</i>&nbsp;                    user.addRequiredAction(action);</b>
+<b class="fc"><i>254</i>&nbsp;                } else if (removeMissingRequiredActions) {</b>
+<b class="fc"><i>255</i>&nbsp;                    user.removeRequiredAction(action);</b>
+<i>256</i>&nbsp;                }
+<b class="fc"><i>257</i>&nbsp;            }</b>
+<i>258</i>&nbsp;        }
+<i>259</i>&nbsp;
+<b class="fc"><i>260</i>&nbsp;        if (rep.getAttributesAsListValues() != null) {</b>
+<b class="fc"><i>261</i>&nbsp;            for (Map.Entry&lt;String, List&lt;String&gt;&gt; attr : rep.getAttributesAsListValues().entrySet()) {</b>
+<b class="fc"><i>262</i>&nbsp;                user.setAttribute(attr.getKey(), attr.getValue());</b>
+<b class="fc"><i>263</i>&nbsp;            }</b>
+<i>264</i>&nbsp;
+<b class="fc"><i>265</i>&nbsp;            for (String attr : attrsToRemove) {</b>
+<b class="fc"><i>266</i>&nbsp;                user.removeAttribute(attr);</b>
+<b class="fc"><i>267</i>&nbsp;            }</b>
+<i>268</i>&nbsp;        }
+<b class="fc"><i>269</i>&nbsp;    }</b>
+<i>270</i>&nbsp;
+<i>271</i>&nbsp;    /**
+<i>272</i>&nbsp;     * Get represenation of the user
+<i>273</i>&nbsp;     *
+<i>274</i>&nbsp;     * @param id User id
+<i>275</i>&nbsp;     * @return
+<i>276</i>&nbsp;     */
+<i>277</i>&nbsp;    @Path(&quot;{id}&quot;)
+<i>278</i>&nbsp;    @GET
+<i>279</i>&nbsp;    @NoCache
+<i>280</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>281</i>&nbsp;    public UserRepresentation getUser(final @PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>282</i>&nbsp;        auth.requireView();</b>
+<i>283</i>&nbsp;
+<b class="fc"><i>284</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>285</i>&nbsp;        if (user == null) {</b>
+<b class="fc"><i>286</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>287</i>&nbsp;        }
+<i>288</i>&nbsp;
+<b class="fc"><i>289</i>&nbsp;        UserRepresentation rep = ModelToRepresentation.toRepresentation(user);</b>
+<i>290</i>&nbsp;
+<b class="fc"><i>291</i>&nbsp;        if (realm.isIdentityFederationEnabled()) {</b>
+<b class="nc"><i>292</i>&nbsp;            List&lt;FederatedIdentityRepresentation&gt; reps = getFederatedIdentities(user);</b>
+<b class="nc"><i>293</i>&nbsp;            rep.setFederatedIdentities(reps);</b>
+<i>294</i>&nbsp;        }
+<i>295</i>&nbsp;
+<b class="fc"><i>296</i>&nbsp;        if (session.getProvider(BruteForceProtector.class).isTemporarilyDisabled(session, realm, rep.getUsername())) {</b>
+<b class="nc"><i>297</i>&nbsp;            rep.setEnabled(false);</b>
+<i>298</i>&nbsp;        }
+<i>299</i>&nbsp;
+<b class="fc"><i>300</i>&nbsp;        return rep;</b>
+<i>301</i>&nbsp;    }
+<i>302</i>&nbsp;
+<i>303</i>&nbsp;    /**
+<i>304</i>&nbsp;     * Impersonate the user
+<i>305</i>&nbsp;     *
+<i>306</i>&nbsp;     * @param id User id
+<i>307</i>&nbsp;     * @return
+<i>308</i>&nbsp;     */
+<i>309</i>&nbsp;    @Path(&quot;{id}/impersonation&quot;)
+<i>310</i>&nbsp;    @POST
+<i>311</i>&nbsp;    @NoCache
+<i>312</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>313</i>&nbsp;    public Map&lt;String, Object&gt; impersonate(final @PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>314</i>&nbsp;        auth.init(RealmAuth.Resource.IMPERSONATION);</b>
+<b class="nc"><i>315</i>&nbsp;        auth.requireManage();</b>
+<i>316</i>&nbsp;
+<b class="nc"><i>317</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>318</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>319</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>320</i>&nbsp;        }
+<b class="nc"><i>321</i>&nbsp;        RealmModel authenticatedRealm = auth.getAuth().getRealm();</b>
+<i>322</i>&nbsp;        // if same realm logout before impersonation
+<b class="nc"><i>323</i>&nbsp;        boolean sameRealm = false;</b>
+<b class="nc"><i>324</i>&nbsp;        if (authenticatedRealm.getId().equals(realm.getId())) {</b>
+<b class="nc"><i>325</i>&nbsp;            sameRealm = true;</b>
+<b class="nc"><i>326</i>&nbsp;            UserSessionModel userSession = session.sessions().getUserSession(authenticatedRealm, auth.getAuth().getToken().getSessionState());</b>
+<b class="nc"><i>327</i>&nbsp;            AuthenticationManager.expireIdentityCookie(realm, uriInfo, clientConnection);</b>
+<b class="nc"><i>328</i>&nbsp;            AuthenticationManager.expireRememberMeCookie(realm, uriInfo, clientConnection);</b>
+<b class="nc"><i>329</i>&nbsp;            AuthenticationManager.backchannelLogout(session, authenticatedRealm, userSession, uriInfo, clientConnection, headers, true);</b>
+<i>330</i>&nbsp;        }
+<b class="nc"><i>331</i>&nbsp;        EventBuilder event = new EventBuilder(realm, session, clientConnection);</b>
+<i>332</i>&nbsp;
+<b class="nc"><i>333</i>&nbsp;        UserSessionModel userSession = session.sessions().createUserSession(realm, user, user.getUsername(), clientConnection.getRemoteAddr(), &quot;impersonate&quot;, false, null, null);</b>
+<b class="nc"><i>334</i>&nbsp;        AuthenticationManager.createLoginCookie(session, realm, userSession.getUser(), userSession, uriInfo, clientConnection);</b>
+<b class="nc"><i>335</i>&nbsp;        URI redirect = AccountService.accountServiceApplicationPage(uriInfo).build(realm.getName());</b>
+<b class="nc"><i>336</i>&nbsp;        Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</b>
+<b class="nc"><i>337</i>&nbsp;        result.put(&quot;sameRealm&quot;, sameRealm);</b>
+<b class="nc"><i>338</i>&nbsp;        result.put(&quot;redirect&quot;, redirect.toString());</b>
+<b class="nc"><i>339</i>&nbsp;        event.event(EventType.IMPERSONATE)</b>
+<b class="nc"><i>340</i>&nbsp;             .session(userSession)</b>
+<b class="nc"><i>341</i>&nbsp;             .user(user)</b>
+<b class="nc"><i>342</i>&nbsp;             .detail(Details.IMPERSONATOR_REALM,authenticatedRealm.getName())</b>
+<b class="nc"><i>343</i>&nbsp;             .detail(Details.IMPERSONATOR, auth.getAuth().getUser().getUsername()).success();</b>
+<i>344</i>&nbsp;
+<b class="nc"><i>345</i>&nbsp;        return result;</b>
+<i>346</i>&nbsp;    }
+<i>347</i>&nbsp;
+<i>348</i>&nbsp;
+<i>349</i>&nbsp;    /**
+<i>350</i>&nbsp;     * Get sessions associated with the user
+<i>351</i>&nbsp;     *
+<i>352</i>&nbsp;     * @param id User id
+<i>353</i>&nbsp;     * @return
+<i>354</i>&nbsp;     */
+<i>355</i>&nbsp;    @Path(&quot;{id}/sessions&quot;)
+<i>356</i>&nbsp;    @GET
+<i>357</i>&nbsp;    @NoCache
+<i>358</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>359</i>&nbsp;    public List&lt;UserSessionRepresentation&gt; getSessions(final @PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>360</i>&nbsp;        auth.requireView();</b>
+<i>361</i>&nbsp;
+<b class="nc"><i>362</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>363</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>364</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>365</i>&nbsp;        }
+<b class="nc"><i>366</i>&nbsp;        List&lt;UserSessionModel&gt; sessions = session.sessions().getUserSessions(realm, user);</b>
+<b class="nc"><i>367</i>&nbsp;        List&lt;UserSessionRepresentation&gt; reps = new ArrayList&lt;UserSessionRepresentation&gt;();</b>
+<b class="nc"><i>368</i>&nbsp;        for (UserSessionModel session : sessions) {</b>
+<b class="nc"><i>369</i>&nbsp;            UserSessionRepresentation rep = ModelToRepresentation.toRepresentation(session);</b>
+<b class="nc"><i>370</i>&nbsp;            reps.add(rep);</b>
+<b class="nc"><i>371</i>&nbsp;        }</b>
+<b class="nc"><i>372</i>&nbsp;        return reps;</b>
+<i>373</i>&nbsp;    }
+<i>374</i>&nbsp;
+<i>375</i>&nbsp;    /**
+<i>376</i>&nbsp;     * Get offline sessions associated with the user and client
+<i>377</i>&nbsp;     *
+<i>378</i>&nbsp;     * @param id User id
+<i>379</i>&nbsp;     * @return
+<i>380</i>&nbsp;     */
+<i>381</i>&nbsp;    @Path(&quot;{id}/offline-sessions/{clientId}&quot;)
+<i>382</i>&nbsp;    @GET
+<i>383</i>&nbsp;    @NoCache
+<i>384</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>385</i>&nbsp;    public List&lt;UserSessionRepresentation&gt; getSessions(final @PathParam(&quot;id&quot;) String id, final @PathParam(&quot;clientId&quot;) String clientId) {
+<b class="nc"><i>386</i>&nbsp;        auth.requireView();</b>
+<i>387</i>&nbsp;
+<b class="nc"><i>388</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>389</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>390</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>391</i>&nbsp;        }
+<b class="nc"><i>392</i>&nbsp;        ClientModel client = realm.getClientById(clientId);</b>
+<b class="nc"><i>393</i>&nbsp;        if (client == null) {</b>
+<b class="nc"><i>394</i>&nbsp;            throw new NotFoundException(&quot;Client not found&quot;);</b>
+<i>395</i>&nbsp;        }
+<b class="nc"><i>396</i>&nbsp;        List&lt;UserSessionModel&gt; sessions = new UserSessionManager(session).findOfflineSessions(realm, client, user);</b>
+<b class="nc"><i>397</i>&nbsp;        List&lt;UserSessionRepresentation&gt; reps = new ArrayList&lt;UserSessionRepresentation&gt;();</b>
+<b class="nc"><i>398</i>&nbsp;        for (UserSessionModel session : sessions) {</b>
+<b class="nc"><i>399</i>&nbsp;            UserSessionRepresentation rep = ModelToRepresentation.toRepresentation(session);</b>
+<i>400</i>&nbsp;
+<i>401</i>&nbsp;            // Update lastSessionRefresh with the timestamp from clientSession
+<b class="nc"><i>402</i>&nbsp;            for (ClientSessionModel clientSession : session.getClientSessions()) {</b>
+<b class="nc"><i>403</i>&nbsp;                if (clientId.equals(clientSession.getClient().getId())) {</b>
+<b class="nc"><i>404</i>&nbsp;                    rep.setLastAccess(Time.toMillis(clientSession.getTimestamp()));</b>
+<b class="nc"><i>405</i>&nbsp;                    break;</b>
+<i>406</i>&nbsp;                }
+<b class="nc"><i>407</i>&nbsp;            }</b>
+<i>408</i>&nbsp;
+<b class="nc"><i>409</i>&nbsp;            reps.add(rep);</b>
+<b class="nc"><i>410</i>&nbsp;        }</b>
+<b class="nc"><i>411</i>&nbsp;        return reps;</b>
+<i>412</i>&nbsp;    }
+<i>413</i>&nbsp;
+<i>414</i>&nbsp;    /**
+<i>415</i>&nbsp;     * Get social logins associated with the user
+<i>416</i>&nbsp;     *
+<i>417</i>&nbsp;     * @param id User id
+<i>418</i>&nbsp;     * @return
+<i>419</i>&nbsp;     */
+<i>420</i>&nbsp;    @Path(&quot;{id}/federated-identity&quot;)
+<i>421</i>&nbsp;    @GET
+<i>422</i>&nbsp;    @NoCache
+<i>423</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>424</i>&nbsp;    public List&lt;FederatedIdentityRepresentation&gt; getFederatedIdentity(final @PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>425</i>&nbsp;        auth.requireView();</b>
+<i>426</i>&nbsp;
+<b class="fc"><i>427</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>428</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>429</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>430</i>&nbsp;        }
+<i>431</i>&nbsp;
+<b class="fc"><i>432</i>&nbsp;        return getFederatedIdentities(user);</b>
+<i>433</i>&nbsp;    }
+<i>434</i>&nbsp;
+<i>435</i>&nbsp;    private List&lt;FederatedIdentityRepresentation&gt; getFederatedIdentities(UserModel user) {
+<b class="fc"><i>436</i>&nbsp;        Set&lt;FederatedIdentityModel&gt; identities = session.users().getFederatedIdentities(user, realm);</b>
+<b class="fc"><i>437</i>&nbsp;        List&lt;FederatedIdentityRepresentation&gt; result = new ArrayList&lt;FederatedIdentityRepresentation&gt;();</b>
+<i>438</i>&nbsp;
+<b class="fc"><i>439</i>&nbsp;        for (FederatedIdentityModel identity : identities) {</b>
+<b class="fc"><i>440</i>&nbsp;            for (IdentityProviderModel identityProviderModel : realm.getIdentityProviders()) {</b>
+<b class="fc"><i>441</i>&nbsp;                if (identityProviderModel.getAlias().equals(identity.getIdentityProvider())) {</b>
+<b class="fc"><i>442</i>&nbsp;                    FederatedIdentityRepresentation rep = ModelToRepresentation.toRepresentation(identity);</b>
+<b class="fc"><i>443</i>&nbsp;                    result.add(rep);</b>
+<i>444</i>&nbsp;                }
+<b class="fc"><i>445</i>&nbsp;            }</b>
+<b class="fc"><i>446</i>&nbsp;        }</b>
+<b class="fc"><i>447</i>&nbsp;        return result;</b>
+<i>448</i>&nbsp;    }
+<i>449</i>&nbsp;
+<i>450</i>&nbsp;    /**
+<i>451</i>&nbsp;     * Add a social login provider to the user
+<i>452</i>&nbsp;     *
+<i>453</i>&nbsp;     * @param id User id
+<i>454</i>&nbsp;     * @param provider Social login provider id
+<i>455</i>&nbsp;     * @param rep
+<i>456</i>&nbsp;     * @return
+<i>457</i>&nbsp;     */
+<i>458</i>&nbsp;    @Path(&quot;{id}/federated-identity/{provider}&quot;)
+<i>459</i>&nbsp;    @POST
+<i>460</i>&nbsp;    @NoCache
+<i>461</i>&nbsp;    public Response addFederatedIdentity(final @PathParam(&quot;id&quot;) String id, final @PathParam(&quot;provider&quot;) String provider, FederatedIdentityRepresentation rep) {
+<b class="fc"><i>462</i>&nbsp;        auth.requireManage();</b>
+<i>463</i>&nbsp;
+<b class="fc"><i>464</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>465</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>466</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>467</i>&nbsp;        }
+<b class="fc"><i>468</i>&nbsp;        if (session.users().getFederatedIdentity(user, provider, realm) != null) {</b>
+<b class="nc"><i>469</i>&nbsp;            return ErrorResponse.exists(&quot;User is already linked with provider&quot;);</b>
+<i>470</i>&nbsp;        }
+<i>471</i>&nbsp;
+<b class="fc"><i>472</i>&nbsp;        FederatedIdentityModel socialLink = new FederatedIdentityModel(provider, rep.getUserId(), rep.getUserName());</b>
+<b class="fc"><i>473</i>&nbsp;        session.users().addFederatedIdentity(realm, user, socialLink);</b>
+<b class="fc"><i>474</i>&nbsp;        adminEvent.operation(OperationType.CREATE).resourcePath(uriInfo).representation(rep).success();</b>
+<b class="fc"><i>475</i>&nbsp;        return Response.noContent().build();</b>
+<i>476</i>&nbsp;    }
+<i>477</i>&nbsp;
+<i>478</i>&nbsp;    /**
+<i>479</i>&nbsp;     * Remove a social login provider from user
+<i>480</i>&nbsp;     *
+<i>481</i>&nbsp;     * @param id User id
+<i>482</i>&nbsp;     * @param provider Social login provider id
+<i>483</i>&nbsp;     */
+<i>484</i>&nbsp;    @Path(&quot;{id}/federated-identity/{provider}&quot;)
+<i>485</i>&nbsp;    @DELETE
+<i>486</i>&nbsp;    @NoCache
+<i>487</i>&nbsp;    public void removeFederatedIdentity(final @PathParam(&quot;id&quot;) String id, final @PathParam(&quot;provider&quot;) String provider) {
+<b class="fc"><i>488</i>&nbsp;        auth.requireManage();</b>
+<i>489</i>&nbsp;
+<b class="fc"><i>490</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>491</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>492</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>493</i>&nbsp;        }
+<b class="fc"><i>494</i>&nbsp;        if (!session.users().removeFederatedIdentity(realm, user, provider)) {</b>
+<b class="nc"><i>495</i>&nbsp;            throw new NotFoundException(&quot;Link not found&quot;);</b>
+<i>496</i>&nbsp;        }
+<b class="fc"><i>497</i>&nbsp;        adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<b class="fc"><i>498</i>&nbsp;    }</b>
+<i>499</i>&nbsp;
+<i>500</i>&nbsp;    /**
+<i>501</i>&nbsp;     * Get consents granted by the user
+<i>502</i>&nbsp;     *
+<i>503</i>&nbsp;     * @param id User id
+<i>504</i>&nbsp;     * @return
+<i>505</i>&nbsp;     */
+<i>506</i>&nbsp;    @Path(&quot;{id}/consents&quot;)
+<i>507</i>&nbsp;    @GET
+<i>508</i>&nbsp;    @NoCache
+<i>509</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>510</i>&nbsp;    public List&lt;Map&lt;String, Object&gt;&gt; getConsents(final @PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>511</i>&nbsp;        auth.requireView();</b>
+<i>512</i>&nbsp;
+<b class="nc"><i>513</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>514</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>515</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>516</i>&nbsp;        }
+<i>517</i>&nbsp;
+<b class="nc"><i>518</i>&nbsp;        List&lt;Map&lt;String, Object&gt;&gt; result = new LinkedList&lt;&gt;();</b>
+<i>519</i>&nbsp;
+<b class="nc"><i>520</i>&nbsp;        Set&lt;ClientModel&gt; offlineClients = new UserSessionManager(session).findClientsWithOfflineToken(realm, user);</b>
+<i>521</i>&nbsp;
+<b class="nc"><i>522</i>&nbsp;        for (ClientModel client : realm.getClients()) {</b>
+<b class="nc"><i>523</i>&nbsp;            UserConsentModel consent = user.getConsentByClient(client.getId());</b>
+<b class="nc"><i>524</i>&nbsp;            boolean hasOfflineToken = offlineClients.contains(client);</b>
+<i>525</i>&nbsp;
+<b class="nc"><i>526</i>&nbsp;            if (consent == null &amp;&amp; !hasOfflineToken) {</b>
+<b class="nc"><i>527</i>&nbsp;                continue;</b>
+<i>528</i>&nbsp;            }
+<i>529</i>&nbsp;
+<b class="nc"><i>530</i>&nbsp;            UserConsentRepresentation rep = (consent == null) ? null : ModelToRepresentation.toRepresentation(consent);</b>
+<i>531</i>&nbsp;
+<b class="nc"><i>532</i>&nbsp;            Map&lt;String, Object&gt; currentRep = new HashMap&lt;&gt;();</b>
+<b class="nc"><i>533</i>&nbsp;            currentRep.put(&quot;clientId&quot;, client.getClientId());</b>
+<b class="nc"><i>534</i>&nbsp;            currentRep.put(&quot;grantedProtocolMappers&quot;, (rep==null ? Collections.emptyMap() : rep.getGrantedProtocolMappers()));</b>
+<b class="nc"><i>535</i>&nbsp;            currentRep.put(&quot;grantedRealmRoles&quot;, (rep==null ? Collections.emptyList() : rep.getGrantedRealmRoles()));</b>
+<b class="nc"><i>536</i>&nbsp;            currentRep.put(&quot;grantedClientRoles&quot;, (rep==null ? Collections.emptyMap() : rep.getGrantedClientRoles()));</b>
+<i>537</i>&nbsp;
+<b class="nc"><i>538</i>&nbsp;            List&lt;Map&lt;String, String&gt;&gt; additionalGrants = new LinkedList&lt;&gt;();</b>
+<b class="nc"><i>539</i>&nbsp;            if (hasOfflineToken) {</b>
+<b class="nc"><i>540</i>&nbsp;                Map&lt;String, String&gt; offlineTokens = new HashMap&lt;&gt;();</b>
+<b class="nc"><i>541</i>&nbsp;                offlineTokens.put(&quot;client&quot;, client.getId());</b>
+<i>542</i>&nbsp;                // TODO: translate
+<b class="nc"><i>543</i>&nbsp;                offlineTokens.put(&quot;key&quot;, &quot;Offline Token&quot;);</b>
+<b class="nc"><i>544</i>&nbsp;                additionalGrants.add(offlineTokens);</b>
+<i>545</i>&nbsp;            }
+<b class="nc"><i>546</i>&nbsp;            currentRep.put(&quot;additionalGrants&quot;, additionalGrants);</b>
+<i>547</i>&nbsp;
+<b class="nc"><i>548</i>&nbsp;            result.add(currentRep);</b>
+<b class="nc"><i>549</i>&nbsp;        }</b>
+<i>550</i>&nbsp;
+<b class="nc"><i>551</i>&nbsp;        return result;</b>
+<i>552</i>&nbsp;    }
+<i>553</i>&nbsp;
+<i>554</i>&nbsp;    /**
+<i>555</i>&nbsp;     * Revoke consent and offline tokens for particular client from user
+<i>556</i>&nbsp;     *
+<i>557</i>&nbsp;     * @param id User id
+<i>558</i>&nbsp;     * @param clientId Client id
+<i>559</i>&nbsp;     */
+<i>560</i>&nbsp;    @Path(&quot;{id}/consents/{client}&quot;)
+<i>561</i>&nbsp;    @DELETE
+<i>562</i>&nbsp;    @NoCache
+<i>563</i>&nbsp;    public void revokeConsent(final @PathParam(&quot;id&quot;) String id, final @PathParam(&quot;client&quot;) String clientId) {
+<b class="nc"><i>564</i>&nbsp;        auth.requireManage();</b>
+<i>565</i>&nbsp;
+<b class="nc"><i>566</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>567</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>568</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>569</i>&nbsp;        }
+<i>570</i>&nbsp;
+<b class="nc"><i>571</i>&nbsp;        ClientModel client = realm.getClientByClientId(clientId);</b>
+<b class="nc"><i>572</i>&nbsp;        boolean revokedConsent = user.revokeConsentForClient(client.getId());</b>
+<b class="nc"><i>573</i>&nbsp;        boolean revokedOfflineToken = new UserSessionManager(session).revokeOfflineToken(user, client);</b>
+<i>574</i>&nbsp;
+<b class="nc"><i>575</i>&nbsp;        if (revokedConsent) {</b>
+<i>576</i>&nbsp;            // Logout clientSessions for this user and client
+<b class="nc"><i>577</i>&nbsp;            AuthenticationManager.backchannelUserFromClient(session, realm, user, client, uriInfo, headers);</b>
+<i>578</i>&nbsp;        }
+<i>579</i>&nbsp;
+<b class="nc"><i>580</i>&nbsp;        if (!revokedConsent &amp;&amp; !revokedOfflineToken) {</b>
+<b class="nc"><i>581</i>&nbsp;            throw new NotFoundException(&quot;Consent nor offline token not found&quot;);</b>
+<i>582</i>&nbsp;        }
+<b class="nc"><i>583</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>584</i>&nbsp;    }</b>
+<i>585</i>&nbsp;
+<i>586</i>&nbsp;    /**
+<i>587</i>&nbsp;     * Remove all user sessions associated with the user
+<i>588</i>&nbsp;     *
+<i>589</i>&nbsp;     * Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
+<i>590</i>&nbsp;     *
+<i>591</i>&nbsp;     * @param id User id
+<i>592</i>&nbsp;     */
+<i>593</i>&nbsp;    @Path(&quot;{id}/logout&quot;)
+<i>594</i>&nbsp;    @POST
+<i>595</i>&nbsp;    public void logout(final @PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>596</i>&nbsp;        auth.requireManage();</b>
+<i>597</i>&nbsp;
+<b class="nc"><i>598</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>599</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>600</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>601</i>&nbsp;        }
+<i>602</i>&nbsp;
+<b class="nc"><i>603</i>&nbsp;        List&lt;UserSessionModel&gt; userSessions = session.sessions().getUserSessions(realm, user);</b>
+<b class="nc"><i>604</i>&nbsp;        for (UserSessionModel userSession : userSessions) {</b>
+<b class="nc"><i>605</i>&nbsp;            AuthenticationManager.backchannelLogout(session, realm, userSession, uriInfo, clientConnection, headers, true);</b>
+<b class="nc"><i>606</i>&nbsp;        }</b>
+<b class="nc"><i>607</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>608</i>&nbsp;    }</b>
+<i>609</i>&nbsp;
+<i>610</i>&nbsp;    /**
+<i>611</i>&nbsp;     * Delete the user
+<i>612</i>&nbsp;     *
+<i>613</i>&nbsp;     * @param id User id
+<i>614</i>&nbsp;     */
+<i>615</i>&nbsp;    @Path(&quot;{id}&quot;)
+<i>616</i>&nbsp;    @DELETE
+<i>617</i>&nbsp;    @NoCache
+<i>618</i>&nbsp;    public Response deleteUser(final @PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>619</i>&nbsp;        auth.requireManage();</b>
+<i>620</i>&nbsp;
+<b class="fc"><i>621</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>622</i>&nbsp;        if (user == null) {</b>
+<b class="fc"><i>623</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>624</i>&nbsp;        }
+<i>625</i>&nbsp;
+<b class="fc"><i>626</i>&nbsp;        boolean removed = new UserManager(session).removeUser(realm, user);</b>
+<b class="fc"><i>627</i>&nbsp;        if (removed) {</b>
+<b class="fc"><i>628</i>&nbsp;            adminEvent.operation(OperationType.DELETE).resourcePath(uriInfo).success();</b>
+<b class="fc"><i>629</i>&nbsp;            return Response.noContent().build();</b>
+<i>630</i>&nbsp;        } else {
+<b class="nc"><i>631</i>&nbsp;            return ErrorResponse.error(&quot;User couldn&#39;t be deleted&quot;, Response.Status.BAD_REQUEST);</b>
+<i>632</i>&nbsp;        }
+<i>633</i>&nbsp;    }
+<i>634</i>&nbsp;
+<i>635</i>&nbsp;    /**
+<i>636</i>&nbsp;     * Get users
+<i>637</i>&nbsp;     *
+<i>638</i>&nbsp;     * Returns a list of users, filtered according to query parameters
+<i>639</i>&nbsp;     *
+<i>640</i>&nbsp;     * @param search A String contained in username, first or last name, or email
+<i>641</i>&nbsp;     * @param last
+<i>642</i>&nbsp;     * @param first
+<i>643</i>&nbsp;     * @param email
+<i>644</i>&nbsp;     * @param username
+<i>645</i>&nbsp;     * @param first Pagination offset
+<i>646</i>&nbsp;     * @param maxResults Pagination size
+<i>647</i>&nbsp;     * @return
+<i>648</i>&nbsp;     */
+<i>649</i>&nbsp;    @GET
+<i>650</i>&nbsp;    @NoCache
+<i>651</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>652</i>&nbsp;    public List&lt;UserRepresentation&gt; getUsers(@QueryParam(&quot;search&quot;) String search,
+<i>653</i>&nbsp;                                             @QueryParam(&quot;lastName&quot;) String last,
+<i>654</i>&nbsp;                                             @QueryParam(&quot;firstName&quot;) String first,
+<i>655</i>&nbsp;                                             @QueryParam(&quot;email&quot;) String email,
+<i>656</i>&nbsp;                                             @QueryParam(&quot;username&quot;) String username,
+<i>657</i>&nbsp;                                             @QueryParam(&quot;first&quot;) Integer firstResult,
+<i>658</i>&nbsp;                                             @QueryParam(&quot;max&quot;) Integer maxResults) {
+<b class="fc"><i>659</i>&nbsp;        auth.requireView();</b>
+<i>660</i>&nbsp;
+<b class="fc"><i>661</i>&nbsp;        firstResult = firstResult != null ? firstResult : -1;</b>
+<b class="fc"><i>662</i>&nbsp;        maxResults = maxResults != null ? maxResults : -1;</b>
+<i>663</i>&nbsp;
+<b class="fc"><i>664</i>&nbsp;        List&lt;UserRepresentation&gt; results = new ArrayList&lt;UserRepresentation&gt;();</b>
+<i>665</i>&nbsp;        List&lt;UserModel&gt; userModels;
+<b class="fc"><i>666</i>&nbsp;        if (search != null) {</b>
+<b class="fc"><i>667</i>&nbsp;            userModels = session.users().searchForUser(search.trim(), realm, firstResult, maxResults);</b>
+<b class="fc"><i>668</i>&nbsp;        } else if (last != null || first != null || email != null || username != null) {</b>
+<b class="fc"><i>669</i>&nbsp;            Map&lt;String, String&gt; attributes = new HashMap&lt;String, String&gt;();</b>
+<b class="fc"><i>670</i>&nbsp;            if (last != null) {</b>
+<b class="nc"><i>671</i>&nbsp;                attributes.put(UserModel.LAST_NAME, last);</b>
+<i>672</i>&nbsp;            }
+<b class="fc"><i>673</i>&nbsp;            if (first != null) {</b>
+<b class="nc"><i>674</i>&nbsp;                attributes.put(UserModel.FIRST_NAME, first);</b>
+<i>675</i>&nbsp;            }
+<b class="fc"><i>676</i>&nbsp;            if (email != null) {</b>
+<b class="fc"><i>677</i>&nbsp;                attributes.put(UserModel.EMAIL, email);</b>
+<i>678</i>&nbsp;            }
+<b class="fc"><i>679</i>&nbsp;            if (username != null) {</b>
+<b class="fc"><i>680</i>&nbsp;                attributes.put(UserModel.USERNAME, username);</b>
+<i>681</i>&nbsp;            }
+<b class="fc"><i>682</i>&nbsp;            userModels = session.users().searchForUserByAttributes(attributes, realm, firstResult, maxResults);</b>
+<b class="fc"><i>683</i>&nbsp;        } else {</b>
+<b class="nc"><i>684</i>&nbsp;            userModels = session.users().getUsers(realm, firstResult, maxResults, false);</b>
+<i>685</i>&nbsp;        }
+<i>686</i>&nbsp;
+<b class="fc"><i>687</i>&nbsp;        for (UserModel user : userModels) {</b>
+<b class="fc"><i>688</i>&nbsp;            results.add(ModelToRepresentation.toRepresentation(user));</b>
+<b class="fc"><i>689</i>&nbsp;        }</b>
+<b class="fc"><i>690</i>&nbsp;        return results;</b>
+<i>691</i>&nbsp;    }
+<i>692</i>&nbsp;
+<i>693</i>&nbsp;    @Path(&quot;count&quot;)
+<i>694</i>&nbsp;    @GET
+<i>695</i>&nbsp;    @NoCache
+<i>696</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>697</i>&nbsp;    public Integer getUsersCount() {
+<b class="fc"><i>698</i>&nbsp;        auth.requireView();</b>
+<i>699</i>&nbsp;
+<b class="fc"><i>700</i>&nbsp;        return session.users().getUsersCount(realm);</b>
+<i>701</i>&nbsp;    }
+<i>702</i>&nbsp;
+<i>703</i>&nbsp;    @Path(&quot;{id}/role-mappings&quot;)
+<i>704</i>&nbsp;    public RoleMapperResource getRoleMappings(@PathParam(&quot;id&quot;) String id) {
+<i>705</i>&nbsp;
+<b class="fc"><i>706</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>707</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>708</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>709</i>&nbsp;        }
+<b class="fc"><i>710</i>&nbsp;        auth.init(RealmAuth.Resource.USER);</b>
+<i>711</i>&nbsp;
+<b class="fc"><i>712</i>&nbsp;        RoleMapperResource resource =  new RoleMapperResource(realm, auth, user, adminEvent);</b>
+<b class="fc"><i>713</i>&nbsp;        ResteasyProviderFactory.getInstance().injectProperties(resource);</b>
+<b class="fc"><i>714</i>&nbsp;        return resource;</b>
+<i>715</i>&nbsp;
+<i>716</i>&nbsp;    }
+<i>717</i>&nbsp;
+<i>718</i>&nbsp;     /**
+<i>719</i>&nbsp;     * Set up a temporary password for the user
+<i>720</i>&nbsp;     *
+<i>721</i>&nbsp;     * User will have to reset the temporary password next time they log in.
+<i>722</i>&nbsp;     *
+<i>723</i>&nbsp;     * @param id User id
+<i>724</i>&nbsp;     * @param pass A Temporary password
+<i>725</i>&nbsp;     */
+<i>726</i>&nbsp;    @Path(&quot;{id}/reset-password&quot;)
+<i>727</i>&nbsp;    @PUT
+<i>728</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>729</i>&nbsp;    public void resetPassword(@PathParam(&quot;id&quot;) String id, CredentialRepresentation pass) {
+<b class="fc"><i>730</i>&nbsp;        auth.requireManage();</b>
+<i>731</i>&nbsp;
+<b class="fc"><i>732</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>733</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>734</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>735</i>&nbsp;        }
+<b class="fc"><i>736</i>&nbsp;        if (pass == null || pass.getValue() == null || !CredentialRepresentation.PASSWORD.equals(pass.getType())) {</b>
+<b class="nc"><i>737</i>&nbsp;            throw new BadRequestException(&quot;No password provided&quot;);</b>
+<i>738</i>&nbsp;        }
+<b class="fc"><i>739</i>&nbsp;        if (Validation.isBlank(pass.getValue())) {</b>
+<b class="fc"><i>740</i>&nbsp;            throw new BadRequestException(&quot;Empty password not allowed&quot;);</b>
+<i>741</i>&nbsp;        }
+<i>742</i>&nbsp;
+<b class="fc"><i>743</i>&nbsp;        UserCredentialModel cred = RepresentationToModel.convertCredential(pass);</b>
+<i>744</i>&nbsp;        try {
+<b class="fc"><i>745</i>&nbsp;            session.users().updateCredential(realm, user, cred);</b>
+<b class="nc"><i>746</i>&nbsp;        } catch (IllegalStateException ise) {</b>
+<b class="nc"><i>747</i>&nbsp;            throw new BadRequestException(&quot;Resetting to N old passwords is not allowed.&quot;);</b>
+<b class="nc"><i>748</i>&nbsp;        } catch (ModelReadOnlyException mre) {</b>
+<b class="nc"><i>749</i>&nbsp;            throw new BadRequestException(&quot;Can&#39;t reset password as account is read only&quot;);</b>
+<b class="nc"><i>750</i>&nbsp;        } catch (ModelException e) {</b>
+<b class="nc"><i>751</i>&nbsp;            Properties messages = AdminRoot.getMessages(session, realm, auth.getAuth().getToken().getLocale());</b>
+<b class="nc"><i>752</i>&nbsp;            throw new ErrorResponseException(e.getMessage(), MessageFormat.format(messages.getProperty(e.getMessage(), e.getMessage()), e.getParameters()),</b>
+<i>753</i>&nbsp;                    Status.BAD_REQUEST);
+<b class="fc"><i>754</i>&nbsp;        }</b>
+<b class="fc"><i>755</i>&nbsp;        if (pass.isTemporary() != null &amp;&amp; pass.isTemporary()) user.addRequiredAction(UserModel.RequiredAction.UPDATE_PASSWORD);</b>
+<i>756</i>&nbsp;
+<b class="fc"><i>757</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="fc"><i>758</i>&nbsp;    }</b>
+<i>759</i>&nbsp;
+<i>760</i>&nbsp;    /**
+<i>761</i>&nbsp;     * Remove TOTP from the user
+<i>762</i>&nbsp;     *
+<i>763</i>&nbsp;     * @param id User id
+<i>764</i>&nbsp;     */
+<i>765</i>&nbsp;    @Path(&quot;{id}/remove-totp&quot;)
+<i>766</i>&nbsp;    @PUT
+<i>767</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>768</i>&nbsp;    public void removeTotp(@PathParam(&quot;id&quot;) String id) {
+<b class="nc"><i>769</i>&nbsp;        auth.requireManage();</b>
+<i>770</i>&nbsp;
+<b class="nc"><i>771</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>772</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>773</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>774</i>&nbsp;        }
+<i>775</i>&nbsp;
+<b class="nc"><i>776</i>&nbsp;        user.setOtpEnabled(false);</b>
+<b class="nc"><i>777</i>&nbsp;        adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<b class="nc"><i>778</i>&nbsp;    }</b>
+<i>779</i>&nbsp;
+<i>780</i>&nbsp;    /**
+<i>781</i>&nbsp;     * Send an email to the user with a link they can click to reset their password.
+<i>782</i>&nbsp;     * The redirectUri and clientId parameters are optional. The default for the
+<i>783</i>&nbsp;     * redirect is the account client.
+<i>784</i>&nbsp;     *
+<i>785</i>&nbsp;     * This endpoint has been deprecated.  Please use the execute-actions-email passing a list with
+<i>786</i>&nbsp;     * UPDATE_PASSWORD within it.
+<i>787</i>&nbsp;     *
+<i>788</i>&nbsp;     * @param id
+<i>789</i>&nbsp;     * @param redirectUri redirect uri
+<i>790</i>&nbsp;     * @param clientId client id
+<i>791</i>&nbsp;     * @return
+<i>792</i>&nbsp;     */
+<i>793</i>&nbsp;    @Deprecated
+<i>794</i>&nbsp;    @Path(&quot;{id}/reset-password-email&quot;)
+<i>795</i>&nbsp;    @PUT
+<i>796</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>797</i>&nbsp;    public Response resetPasswordEmail(@PathParam(&quot;id&quot;) String id,
+<i>798</i>&nbsp;                                        @QueryParam(OIDCLoginProtocol.REDIRECT_URI_PARAM) String redirectUri,
+<i>799</i>&nbsp;                                        @QueryParam(OIDCLoginProtocol.CLIENT_ID_PARAM) String clientId) {
+<b class="nc"><i>800</i>&nbsp;        List&lt;String&gt; actions = new LinkedList&lt;&gt;();</b>
+<b class="nc"><i>801</i>&nbsp;        actions.add(UserModel.RequiredAction.UPDATE_PASSWORD.name());</b>
+<b class="nc"><i>802</i>&nbsp;        return executeActionsEmail(id, redirectUri, clientId, actions);</b>
+<i>803</i>&nbsp;    }
+<i>804</i>&nbsp;
+<i>805</i>&nbsp;
+<i>806</i>&nbsp;    /**
+<i>807</i>&nbsp;     * Send a update account email to the user
+<i>808</i>&nbsp;     *
+<i>809</i>&nbsp;     * An email contains a link the user can click to perform a set of required actions.
+<i>810</i>&nbsp;     * The redirectUri and clientId parameters are optional. The default for the
+<i>811</i>&nbsp;     * redirect is the account client.
+<i>812</i>&nbsp;     *
+<i>813</i>&nbsp;     * @param id User is
+<i>814</i>&nbsp;     * @param redirectUri Redirect uri
+<i>815</i>&nbsp;     * @param clientId Client id
+<i>816</i>&nbsp;     * @param actions required actions the user needs to complete
+<i>817</i>&nbsp;     * @return
+<i>818</i>&nbsp;     */
+<i>819</i>&nbsp;    @Path(&quot;{id}/execute-actions-email&quot;)
+<i>820</i>&nbsp;    @PUT
+<i>821</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>822</i>&nbsp;    public Response executeActionsEmail(@PathParam(&quot;id&quot;) String id,
+<i>823</i>&nbsp;                                        @QueryParam(OIDCLoginProtocol.REDIRECT_URI_PARAM) String redirectUri,
+<i>824</i>&nbsp;                                        @QueryParam(OIDCLoginProtocol.CLIENT_ID_PARAM) String clientId,
+<i>825</i>&nbsp;                                        List&lt;String&gt; actions) {
+<b class="fc"><i>826</i>&nbsp;        auth.requireManage();</b>
+<i>827</i>&nbsp;
+<b class="fc"><i>828</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>829</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>830</i>&nbsp;            return ErrorResponse.error(&quot;User not found&quot;, Response.Status.NOT_FOUND);</b>
+<i>831</i>&nbsp;        }
+<i>832</i>&nbsp;
+<b class="fc"><i>833</i>&nbsp;        if (user.getEmail() == null) {</b>
+<b class="fc"><i>834</i>&nbsp;            return ErrorResponse.error(&quot;User email missing&quot;, Response.Status.BAD_REQUEST);</b>
+<i>835</i>&nbsp;        }
+<i>836</i>&nbsp;
+<b class="fc"><i>837</i>&nbsp;        ClientSessionModel clientSession = createClientSession(user, redirectUri, clientId);</b>
+<b class="fc"><i>838</i>&nbsp;        for (String action : actions) {</b>
+<b class="fc"><i>839</i>&nbsp;            clientSession.addRequiredAction(action);</b>
+<b class="fc"><i>840</i>&nbsp;        }</b>
+<b class="fc"><i>841</i>&nbsp;        ClientSessionCode accessCode = new ClientSessionCode(realm, clientSession);</b>
+<b class="fc"><i>842</i>&nbsp;        accessCode.setAction(ClientSessionModel.Action.EXECUTE_ACTIONS.name());</b>
+<i>843</i>&nbsp;
+<i>844</i>&nbsp;        try {
+<b class="fc"><i>845</i>&nbsp;            UriBuilder builder = Urls.executeActionsBuilder(uriInfo.getBaseUri());</b>
+<b class="fc"><i>846</i>&nbsp;            builder.queryParam(&quot;key&quot;, accessCode.getCode());</b>
+<i>847</i>&nbsp;
+<b class="fc"><i>848</i>&nbsp;            String link = builder.build(realm.getName()).toString();</b>
+<b class="fc"><i>849</i>&nbsp;            long expiration = TimeUnit.SECONDS.toMinutes(realm.getAccessCodeLifespanUserAction());</b>
+<i>850</i>&nbsp;
+<b class="fc"><i>851</i>&nbsp;            this.session.getProvider(EmailTemplateProvider.class).setRealm(realm).setUser(user).sendExecuteActions(link, expiration);</b>
+<i>852</i>&nbsp;
+<i>853</i>&nbsp;            //audit.user(user).detail(Details.EMAIL, user.getEmail()).detail(Details.CODE_ID, accessCode.getCodeId()).success();
+<i>854</i>&nbsp;
+<b class="fc"><i>855</i>&nbsp;            adminEvent.operation(OperationType.ACTION).resourcePath(uriInfo).success();</b>
+<i>856</i>&nbsp;
+<b class="fc"><i>857</i>&nbsp;            return Response.ok().build();</b>
+<b class="nc"><i>858</i>&nbsp;        } catch (EmailException e) {</b>
+<b class="nc"><i>859</i>&nbsp;            logger.failedToSendActionsEmail(e);</b>
+<b class="nc"><i>860</i>&nbsp;            return ErrorResponse.error(&quot;Failed to send execute actions email&quot;, Response.Status.INTERNAL_SERVER_ERROR);</b>
+<i>861</i>&nbsp;        }
+<i>862</i>&nbsp;    }
+<i>863</i>&nbsp;
+<i>864</i>&nbsp;    /**
+<i>865</i>&nbsp;     * Send an email-verification email to the user
+<i>866</i>&nbsp;     *
+<i>867</i>&nbsp;     * An email contains a link the user can click to verify their email address.
+<i>868</i>&nbsp;     * The redirectUri and clientId parameters are optional. The default for the
+<i>869</i>&nbsp;     * redirect is the account client.
+<i>870</i>&nbsp;     *
+<i>871</i>&nbsp;     * @param id User id
+<i>872</i>&nbsp;     * @param redirectUri Redirect uri
+<i>873</i>&nbsp;     * @param clientId Client id
+<i>874</i>&nbsp;     * @return
+<i>875</i>&nbsp;     */
+<i>876</i>&nbsp;    @Path(&quot;{id}/send-verify-email&quot;)
+<i>877</i>&nbsp;    @PUT
+<i>878</i>&nbsp;    @Consumes(MediaType.APPLICATION_JSON)
+<i>879</i>&nbsp;    public Response sendVerifyEmail(@PathParam(&quot;id&quot;) String id, @QueryParam(OIDCLoginProtocol.REDIRECT_URI_PARAM) String redirectUri, @QueryParam(OIDCLoginProtocol.CLIENT_ID_PARAM) String clientId) {
+<b class="fc"><i>880</i>&nbsp;        List&lt;String&gt; actions = new LinkedList&lt;&gt;();</b>
+<b class="fc"><i>881</i>&nbsp;        actions.add(UserModel.RequiredAction.VERIFY_EMAIL.name());</b>
+<b class="fc"><i>882</i>&nbsp;        return executeActionsEmail(id, redirectUri, clientId, actions);</b>
+<i>883</i>&nbsp;    }
+<i>884</i>&nbsp;
+<i>885</i>&nbsp;    private ClientSessionModel createClientSession(UserModel user, String redirectUri, String clientId) {
+<i>886</i>&nbsp;
+<b class="fc"><i>887</i>&nbsp;        if (!user.isEnabled()) {</b>
+<b class="fc"><i>888</i>&nbsp;            throw new WebApplicationException(</b>
+<b class="fc"><i>889</i>&nbsp;                ErrorResponse.error(&quot;User is disabled&quot;, Response.Status.BAD_REQUEST));</b>
+<i>890</i>&nbsp;        }
+<i>891</i>&nbsp;
+<b class="fc"><i>892</i>&nbsp;        if (redirectUri != null &amp;&amp; clientId == null) {</b>
+<b class="nc"><i>893</i>&nbsp;            throw new WebApplicationException(</b>
+<b class="nc"><i>894</i>&nbsp;                ErrorResponse.error(&quot;Client id missing&quot;, Response.Status.BAD_REQUEST));</b>
+<i>895</i>&nbsp;        }
+<i>896</i>&nbsp;
+<b class="fc"><i>897</i>&nbsp;        if (clientId == null) {</b>
+<b class="fc"><i>898</i>&nbsp;            clientId = Constants.ACCOUNT_MANAGEMENT_CLIENT_ID;</b>
+<i>899</i>&nbsp;        }
+<i>900</i>&nbsp;
+<b class="fc"><i>901</i>&nbsp;        ClientModel client = realm.getClientByClientId(clientId);</b>
+<b class="fc"><i>902</i>&nbsp;        if (client == null || !client.isEnabled()) {</b>
+<b class="fc"><i>903</i>&nbsp;            throw new WebApplicationException(</b>
+<b class="fc"><i>904</i>&nbsp;                ErrorResponse.error(clientId + &quot; not enabled&quot;, Response.Status.BAD_REQUEST));</b>
+<i>905</i>&nbsp;        }
+<i>906</i>&nbsp;
+<i>907</i>&nbsp;        String redirect;
+<b class="fc"><i>908</i>&nbsp;        if (redirectUri != null) {</b>
+<b class="nc"><i>909</i>&nbsp;            redirect = RedirectUtils.verifyRedirectUri(uriInfo, redirectUri, realm, client);</b>
+<b class="nc"><i>910</i>&nbsp;            if (redirect == null) {</b>
+<b class="nc"><i>911</i>&nbsp;                throw new WebApplicationException(</b>
+<b class="nc"><i>912</i>&nbsp;                    ErrorResponse.error(&quot;Invalid redirect uri.&quot;, Response.Status.BAD_REQUEST));</b>
+<i>913</i>&nbsp;            }
+<i>914</i>&nbsp;        } else {
+<b class="fc"><i>915</i>&nbsp;            redirect = Urls.accountBase(uriInfo.getBaseUri()).path(&quot;/&quot;).build(realm.getName()).toString();</b>
+<i>916</i>&nbsp;        }
+<i>917</i>&nbsp;
+<i>918</i>&nbsp;
+<b class="fc"><i>919</i>&nbsp;        UserSessionModel userSession = session.sessions().createUserSession(realm, user, user.getUsername(), clientConnection.getRemoteAddr(), &quot;form&quot;, false, null, null);</b>
+<i>920</i>&nbsp;        //audit.session(userSession);
+<b class="fc"><i>921</i>&nbsp;        ClientSessionModel clientSession = session.sessions().createClientSession(realm, client);</b>
+<b class="fc"><i>922</i>&nbsp;        clientSession.setAuthMethod(OIDCLoginProtocol.LOGIN_PROTOCOL);</b>
+<b class="fc"><i>923</i>&nbsp;        clientSession.setRedirectUri(redirect);</b>
+<b class="fc"><i>924</i>&nbsp;        clientSession.setUserSession(userSession);</b>
+<i>925</i>&nbsp;
+<b class="fc"><i>926</i>&nbsp;        return clientSession;</b>
+<i>927</i>&nbsp;    }
+<i>928</i>&nbsp;
+<i>929</i>&nbsp;    @GET
+<i>930</i>&nbsp;    @Path(&quot;{id}/groups&quot;)
+<i>931</i>&nbsp;    @NoCache
+<i>932</i>&nbsp;    @Produces(MediaType.APPLICATION_JSON)
+<i>933</i>&nbsp;    public List&lt;GroupRepresentation&gt; groupMembership(@PathParam(&quot;id&quot;) String id) {
+<b class="fc"><i>934</i>&nbsp;        auth.requireView();</b>
+<i>935</i>&nbsp;
+<b class="fc"><i>936</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>937</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>938</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>939</i>&nbsp;        }
+<b class="fc"><i>940</i>&nbsp;        List&lt;GroupRepresentation&gt; memberships = new LinkedList&lt;&gt;();</b>
+<b class="fc"><i>941</i>&nbsp;        for (GroupModel group : user.getGroups()) {</b>
+<b class="fc"><i>942</i>&nbsp;            memberships.add(ModelToRepresentation.toRepresentation(group, false));</b>
+<b class="fc"><i>943</i>&nbsp;        }</b>
+<b class="fc"><i>944</i>&nbsp;        return memberships;</b>
+<i>945</i>&nbsp;    }
+<i>946</i>&nbsp;
+<i>947</i>&nbsp;    @DELETE
+<i>948</i>&nbsp;    @Path(&quot;{id}/groups/{groupId}&quot;)
+<i>949</i>&nbsp;    @NoCache
+<i>950</i>&nbsp;    public void removeMembership(@PathParam(&quot;id&quot;) String id, @PathParam(&quot;groupId&quot;) String groupId) {
+<b class="nc"><i>951</i>&nbsp;        auth.requireManage();</b>
+<i>952</i>&nbsp;
+<b class="nc"><i>953</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="nc"><i>954</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>955</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>956</i>&nbsp;        }
+<b class="nc"><i>957</i>&nbsp;        GroupModel group = session.realms().getGroupById(groupId, realm);</b>
+<b class="nc"><i>958</i>&nbsp;        if (group == null) {</b>
+<b class="nc"><i>959</i>&nbsp;            throw new NotFoundException(&quot;Group not found&quot;);</b>
+<i>960</i>&nbsp;        }
+<i>961</i>&nbsp;
+<i>962</i>&nbsp;        try {
+<b class="nc"><i>963</i>&nbsp;            if (user.isMemberOf(group)) user.leaveGroup(group);</b>
+<b class="nc"><i>964</i>&nbsp;        } catch (ModelException me) {</b>
+<b class="nc"><i>965</i>&nbsp;            Properties messages = AdminRoot.getMessages(session, realm, auth.getAuth().getToken().getLocale());</b>
+<b class="nc"><i>966</i>&nbsp;            throw new ErrorResponseException(me.getMessage(), MessageFormat.format(messages.getProperty(me.getMessage(), me.getMessage()), me.getParameters()),</b>
+<i>967</i>&nbsp;                    Response.Status.BAD_REQUEST);
+<b class="nc"><i>968</i>&nbsp;        }</b>
+<b class="nc"><i>969</i>&nbsp;    }</b>
+<i>970</i>&nbsp;
+<i>971</i>&nbsp;    @PUT
+<i>972</i>&nbsp;    @Path(&quot;{id}/groups/{groupId}&quot;)
+<i>973</i>&nbsp;    @NoCache
+<i>974</i>&nbsp;    public void joinGroup(@PathParam(&quot;id&quot;) String id, @PathParam(&quot;groupId&quot;) String groupId) {
+<b class="fc"><i>975</i>&nbsp;        auth.requireManage();</b>
+<i>976</i>&nbsp;
+<b class="fc"><i>977</i>&nbsp;        UserModel user = session.users().getUserById(id, realm);</b>
+<b class="fc"><i>978</i>&nbsp;        if (user == null) {</b>
+<b class="nc"><i>979</i>&nbsp;            throw new NotFoundException(&quot;User not found&quot;);</b>
+<i>980</i>&nbsp;        }
+<b class="fc"><i>981</i>&nbsp;        GroupModel group = session.realms().getGroupById(groupId, realm);</b>
+<b class="fc"><i>982</i>&nbsp;        if (group == null) {</b>
+<b class="nc"><i>983</i>&nbsp;            throw new NotFoundException(&quot;Group not found&quot;);</b>
+<i>984</i>&nbsp;        }
+<b class="fc"><i>985</i>&nbsp;        if (!user.isMemberOf(group)) user.joinGroup(group);</b>
+<b class="fc"><i>986</i>&nbsp;    }</b>
+<i>987</i>&nbsp;
+<i>988</i>&nbsp;
+<i>989</i>&nbsp;}
+</div>
+</div>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2016-04-20 13:42</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Keycloak</title>
+
+    <meta name="description" content="...">
+    <meta name="author" content="Stian Thorgersen">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/keycloak.css" id="theme">
+
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <!--
+
+
+<link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono|Ubuntu|Ubuntu+Condensed' rel='stylesheet'
+  type='text/css'>
+
+-->
+</head>
+
+<body data-ng-app="demo" data-ng-controller="DemoCtrl">
+
+<div id="menu">
+    <span class="config-error" data-ng-show="configError">{{configError}}</span>
+    <button class="small" data-ng-click="showConfig = !showConfig">{{showConfig ? 'Close config' : 'Config'}}</button>
+    <button class="small" data-ng-click="login()" data-ng-hide="keycloak.authenticated">Log In</button>
+    <button class="small" data-ng-click="login()" data-ng-show="keycloak.authenticated">Refresh Log In</button>
+    <button class="small" data-ng-click="logout()" data-ng-show="keycloak.authenticated">Log Out</button>
+    <a class="small" href="{{keycloakConfig.url}}/auth/admin/index.html" target="_blank">Admin</a>
+</div>
+
+<div id="config" data-ng-show="showConfig">
+    <div><label>URL</label><input data-ng-model="keycloakConfig.url"></div>
+
+    <div><label>Realm</label><input data-ng-model="keycloakConfig.realm"></div>
+
+    <div><label>Client ID</label><input data-ng-model="keycloakConfig.clientId"></div>
+
+    <div><label>Client Secret</label><input data-ng-model="keycloakConfig.clientSecret"></div>
+
+    <div class="controls">
+        <button class="small" data-ng-click="save()">Save</button>
+        <button class="small" data-ng-click="reset()">Reset</button>
+        <button class="small" data-ng-click="showConfig = !showConfig">Close</button>
+    </div>
+</div>
+
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <img src="keycloak-demo-logo.png"/>
+
+            <p>Stian Thorgersen / stian@redhat.com</p>
+        </section>
+
+        <section>
+            <h2>Configure Keycloak</h2>
+            <ol>
+                <li><a href="{{keycloakConfig.url}}/auth/admin/index.html#/realms" target="_blank">Create Realm</a></li>
+                <li><a href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}/applications" target="_blank">Create App</a></li>
+                <li><a href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}/users" target="_blank">Create User</a></li>
+                <li><a href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}/roles" target="_blank">Create Roles</a></li>
+            </ol>
+        </section>
+
+        <section>
+            <section>
+                <button class="big" data-ng-click="login()" data-ng-hide="keycloak.authenticated">Log In</button>
+                <button class="big" data-ng-click="logout()" data-ng-show="keycloak.authenticated">Log Out</button>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}" target="_blank">Enable Registration</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}" target="_blank">Change Theme</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}/users" target="_blank">Add Required Action</a>
+                </ul>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}" target="_blank">Enable Social Login</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/{{keycloakConfig.realm}}" target="_blank">Enable Multi-factor Auth</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/rest/realms/{{keycloakConfig.realm}}/account" target="_blank">Account Management</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <a class="big" href="{{keycloakConfig.url}}/auth/admin/index.html#/realms/demo-realm/oauth-clients" target="_blank">Create Client</a>
+            </section>
+            <section>
+                <div data-ng-include="'demo-auth.html'"/>
+            </section>
+        </section>
+    </div>
+</div>
+
+<script src="keycloak.js"></script>
+<script src="angular.js"></script>
+<script src="script.js"></script>
+
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+<script>
+
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+ controls: true,
+ progress: true,
+ history: true,
+ center: true,
+
+ theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+ transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+ // Parallax scrolling
+ // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+ // parallaxBackgroundSize: '2100px 900px',
+
+ // Optional libraries used to extend on reveal.js
+ dependencies: [
+     { src: 'lib/js/classList.js', condition: function () {
+         return !document.body.classList;
+     } },
+     { src: 'plugin/markdown/marked.js', condition: function () {
+         return !!document.querySelector('[data-markdown]');
+     } },
+     { src: 'plugin/markdown/markdown.js', condition: function () {
+         return !!document.querySelector('[data-markdown]');
+     } },
+     { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+         hljs.initHighlightingOnLoad();
+     } },
+     { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+         return !!document.body.classList;
+     } },
+     { src: 'plugin/notes/notes.js', async: true, condition: function () {
+         return !!document.body.classList;
+     } }
+ ],
+
+ width: 1200,
+ height: 900
+});
+</script>
+
+</body>
+</html>
